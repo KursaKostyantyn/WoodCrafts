@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>io.teamchallenge</groupId>
-    <artifactId>sosna</artifactId>
+    <artifactId>woodcrafts</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>sosna</name>
-    <description>sosna</description>
+    <name>woodcrafts</name>
+    <description>woodcrafts</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
