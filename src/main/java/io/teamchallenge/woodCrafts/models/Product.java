@@ -8,15 +8,19 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
@@ -32,7 +36,7 @@ public class Product {
     private Long id;
 
     @Column(name = "price")
-    private int price;
+    private double price;
 
     @Column(name = "name")
     private String name;
@@ -40,36 +44,46 @@ public class Product {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "rating")
-    private double rating;
+    @ElementCollection
+    @CollectionTable(name = "photos", joinColumns = @JoinColumn(name = "photo_id"))
+    @Column(name = "photos")
+    private List<String> photos;
 
-    @Column(name = "color")
-    private String color;
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.DETACH})
+    @JoinColumn (name = "color_id", referencedColumnName = "id")
+    private Color color;
 
-    @Column(name = "size")
-    private String size;
+    @Column(name = "weight")
+    private double weight;
 
-    @Column(name = "registration_date")
+    @Column(name = "height")
+    private double height;
+
+    @Column(name = "length")
+    private double length;
+
+    @Column(name = "wight")
+    private double wight;
+
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.DETACH})
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private Category category;
+
+    @Column(name = "quantity")
+    private int quantity;
+
+    @Column(name = "warranty")
+    private int warranty;
+
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.DETACH})
+    @JoinColumn(name = "material_id", referencedColumnName = "id")
+    private Material material;
+
+    @Column(name = "creation_date")
     @CreationTimestamp
-    private LocalDateTime registrationDate;
+    private LocalDateTime creationDate;
 
     @Column(name = "update_date")
     @UpdateTimestamp
     private LocalDateTime updateDate;
-
-    @Column(name = "material")
-    private String material;
-
-    @Column(name = "guarantee")
-    private int guarantee;
-
-    @Column(name = "weigth")
-    private double weight;
-
-    @Column(name = "photo")
-    private String photo;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "category_id", referencedColumnName = "id")
-    private Category category;
 }

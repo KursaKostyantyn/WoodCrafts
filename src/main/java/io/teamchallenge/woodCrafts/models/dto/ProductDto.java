@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.persistence.Column;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
@@ -17,14 +19,16 @@ public class ProductDto {
     private double price;
     private String name;
     private String description;
-    private double rating;
-    private String color;
-    private String size;
-    private LocalDateTime registrationDate;
-    private LocalDateTime updateDate;
-    private String material;
-    private int guarantee;
+    private List<String> photos;
+    private Long colorId;
     private double weight;
-    private String photo;
+    private double height;
+    private double length;
+    private double wight;
     private Long categoryId;
+    private int quantity;
+    private int warranty;
+    private Long materialId;
+    private LocalDateTime creationDate;
+    private LocalDateTime updateDate;
 }
