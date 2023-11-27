@@ -95,6 +95,8 @@ public class AutoFillingTables {
             productService.saveProduct(productDto);
             productDto = getNewProduct(i + 1,k,k,k );
             productService.saveProduct(productDto);
+            productDto = getNewProduct(i + 1,k,k,k );
+            productService.saveProduct(productDto);
         }
     }
 

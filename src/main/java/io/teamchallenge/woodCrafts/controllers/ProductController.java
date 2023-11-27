@@ -54,7 +54,7 @@ public class ProductController {
     @GetMapping("/getAllProducts")
     public ResponseEntity<PageDateDto<ProductDto>> findAllProducts(
             @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "2") int size
+            @RequestParam(required = false, defaultValue = "7") int size
     ) {
         return productService.findAllProducts(PageRequest.of(page,size));
     }
