@@ -24,7 +24,7 @@ public class ProductDto {
     private double weight;
     private double height;
     private double length;
-    private double wight;
+    private double width;
     private Long categoryId;
     private int quantity;
     private int warranty;

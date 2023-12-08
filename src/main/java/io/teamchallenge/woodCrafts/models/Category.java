@@ -11,8 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -21,14 +21,15 @@ import java.util.List;
 @ToString
 
 @Entity
-@Table (name = "categories")
+@Table(name = "categories")
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
+    @NotNull
     private String name;
 
     @OneToMany(mappedBy = "category")
