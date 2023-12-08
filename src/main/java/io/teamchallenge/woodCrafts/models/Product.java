@@ -19,6 +19,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,13 +36,16 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
+    @NotNull
     private double price;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
+    @NotNull
     private String name;
 
     @Column(name = "description")
+    @NotNull
     private String description;
 
     @ElementCollection
@@ -51,32 +55,41 @@ public class Product {
 
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.DETACH})
     @JoinColumn (name = "color_id", referencedColumnName = "id")
+    @NotNull
     private Color color;
 
     @Column(name = "weight")
+    @NotNull
     private double weight;
 
     @Column(name = "height")
+    @NotNull
     private double height;
 
     @Column(name = "length")
+    @NotNull
     private double length;
 
     @Column(name = "wight")
+    @NotNull
     private double wight;
 
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.DETACH})
     @JoinColumn(name = "category_id", referencedColumnName = "id")
+    @NotNull
     private Category category;
 
     @Column(name = "quantity")
+    @NotNull
     private int quantity;
 
     @Column(name = "warranty")
+    @NotNull
     private int warranty;
 
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.DETACH})
     @JoinColumn(name = "material_id", referencedColumnName = "id")
+    @NotNull
     private Material material;
 
     @Column(name = "creation_date")

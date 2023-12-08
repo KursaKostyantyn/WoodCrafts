@@ -11,8 +11,8 @@ public class AutoFillingTablesServiceImpl implements AutoFillingTablesService {
 
     private final AutoFillingTables autoFillingTables;
 
-   @Override
-    public void autoFillingTables() {
-       autoFillingTables.autoFilling();
+    @Override
+    public void autoFillingTables(int numberOfProducts) {
+        autoFillingTables.autoFilling(numberOfProducts);
     }
 }
