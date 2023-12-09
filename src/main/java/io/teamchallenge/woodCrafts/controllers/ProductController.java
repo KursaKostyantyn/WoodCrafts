@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/product")
+@RequestMapping("/products")
 public class ProductController {
 
     private final ProductService productService;
@@ -33,7 +33,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body("Hello world woodCrafts in products");
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public ResponseEntity<Void> saveProduct(@RequestBody ProductDto productDto) {
         return productService.saveProduct(productDto);
     }

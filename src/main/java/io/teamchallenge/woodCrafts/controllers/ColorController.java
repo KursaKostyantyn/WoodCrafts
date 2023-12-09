@@ -17,12 +17,12 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/color")
+@RequestMapping("/colors")
 public class ColorController {
 
     private final ColorService colorService;
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public ResponseEntity<Void> saveColor(@RequestBody ColorDto colorDto) {
         return colorService.saveColor(colorDto);
     }
