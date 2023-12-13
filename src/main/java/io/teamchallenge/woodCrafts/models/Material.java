@@ -33,5 +33,6 @@ public class Material {
     private String name;
 
     @OneToMany(mappedBy = "color")
+    @ToString.Exclude
     private List<Product> products;
 }

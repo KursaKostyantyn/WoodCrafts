@@ -22,16 +22,16 @@ public class ProductMapper {
         return modelMapper.map(product, ProductDto.class);
     }
 
-    public static void updateProductFromProductDto(ProductDto productDto, Product product){
+    public static void updateProductFromProductDto(ProductDto productDto, Product product) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        modelMapper.typeMap(ProductDto.class,Product.class)
-                .addMappings(mapper->{
+        modelMapper.typeMap(ProductDto.class, Product.class)
+                .addMappings(mapper -> {
                     mapper.skip(Product::setCategory);
                     mapper.skip(Product::setColor);
                     mapper.skip(Product::setMaterial);
                     mapper.skip(Product::setCreationDate);
                 });
-        modelMapper.map(productDto,product);
+        modelMapper.map(productDto, product);
     }
 }

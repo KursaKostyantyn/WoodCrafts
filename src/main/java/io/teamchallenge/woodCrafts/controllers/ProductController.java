@@ -54,7 +54,7 @@ public class ProductController {
     }
 
     @GetMapping("/getAllProducts")
-    public  ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(
+    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "7") int size,
             @RequestParam(required = false, defaultValue = "id") String sortBy,
@@ -67,4 +67,26 @@ public class ProductController {
     public ResponseEntity<Void> importListOfProducts(@RequestParam MultipartFile productsFile) {
         return productService.importListOfProducts(productsFile);
     }
+
+    @GetMapping("/getFilteredProducts")
+    public ResponseEntity<PageWrapperDto<ProductDto>> getFilteredProducts(
+            @RequestParam(required = false, defaultValue = "0") List<Long> categoryIds,
+            @RequestParam(required = false, defaultValue = "0") List<Long> colorIds,
+            @RequestParam(required = false, defaultValue = "0") List<Long> materialIds,
+            @RequestParam(required = false, defaultValue = "0") int minPrice,
+            @RequestParam(required = false, defaultValue = "1000000000") int maxPrice,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "7") int size,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction
+    ) {
+        return productService.getFilteredProducts(
+                PageRequest.of(page, size, direction, sortBy),
+                categoryIds,
+                colorIds,
+                materialIds,
+                minPrice,
+                maxPrice);
+    }
+
 }

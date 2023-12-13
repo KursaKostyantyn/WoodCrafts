@@ -16,9 +16,19 @@ public interface ProductService {
 
     ResponseEntity<Void> deleteProductById(Long id);
 
-    ResponseEntity<Void> updateProductById (ProductDto productDto, Long id);
+    ResponseEntity<Void> updateProductById(ProductDto productDto, Long id);
 
-    ResponseEntity<Void> importListOfProducts (MultipartFile productsFile);
+    ResponseEntity<Void> importListOfProducts(MultipartFile productsFile);
 
-    ResponseEntity<PageWrapperDto<ProductDto>>findAllProducts(PageRequest pageRequest);
+    ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest);
+
+    ResponseEntity<PageWrapperDto<ProductDto>> getFilteredProducts
+            (
+                    PageRequest pageRequest,
+                    List<Long> categoryIds,
+                    List<Long> colorIds,
+                    List<Long> materialIds,
+                    int minPrice,
+                    int maxPrice
+            );
 }
