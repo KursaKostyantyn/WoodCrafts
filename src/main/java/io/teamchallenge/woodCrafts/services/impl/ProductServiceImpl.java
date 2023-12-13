@@ -124,37 +124,38 @@ public class ProductServiceImpl implements ProductService {
         if (!productsFile.isEmpty()) {
             try (Workbook workbook = WorkbookFactory.create(productsFile.getInputStream())) {
                 Sheet sheet = workbook.getSheetAt(0);
-                for (Row row : sheet) {
-                    String name = row.getCell(0).getStringCellValue();
-                    double price = row.getCell(1).getNumericCellValue();
-                    String description = row.getCell(2).getStringCellValue();
-                    Long colorId = (long) row.getCell(3).getNumericCellValue();
-                    double weight = row.getCell(4).getNumericCellValue();
-                    double height = row.getCell(5).getNumericCellValue();
-                    double length = row.getCell(6).getNumericCellValue();
-                    double width = row.getCell(7).getNumericCellValue();
-                    Long categoryId = (long) row.getCell(8).getNumericCellValue();
-                    int quantity = (int) row.getCell(9).getNumericCellValue();
-                    int warranty = (int) row.getCell(10).getNumericCellValue();
-                    Long materialId = (long) row.getCell(11).getNumericCellValue();
-                    ProductDto productDto = new ProductDto();
-                    productDto.setName(name);
-                    productDto.setPrice(price);
-                    productDto.setDescription(description);
-                    productDto.setColorId(colorId);
-                    productDto.setWeight(weight);
-                    productDto.setHeight(height);
-                    productDto.setLength(length);
-                    productDto.setWidth(width);
-                    productDto.setCategoryId(categoryId);
-                    productDto.setQuantity(quantity);
-                    productDto.setWarranty(warranty);
-                    productDto.setMaterialId(materialId);
+                for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+                    Row row = sheet.getRow(i);
+                    if (row != null) {
+                        String name = getStringCellValue(row, 0);
+                        double price = getDoubleCellValue(row, 1);
+                        String description = getStringCellValue(row, 2);
+                        Long colorId = getLongCellValue(row, 3);
+                        double weight = getDoubleCellValue(row, 4);
+                        double height = getDoubleCellValue(row, 5);
+                        double length = getDoubleCellValue(row, 6);
+                        double width = getDoubleCellValue(row, 7);
+                        Long categoryId = getLongCellValue(row, 8);
+                        int quantity = (int) getDoubleCellValue(row, 9);
+                        int warranty = (int) getDoubleCellValue(row, 10);
+                        Long materialId = getLongCellValue(row, 11);
+                        ProductDto productDto = new ProductDto();
+                        productDto.setName(name);
+                        productDto.setPrice(price);
+                        productDto.setDescription(description);
+                        productDto.setColorId(colorId);
+                        productDto.setWeight(weight);
+                        productDto.setHeight(height);
+                        productDto.setLength(length);
+                        productDto.setWidth(width);
+                        productDto.setCategoryId(categoryId);
+                        productDto.setQuantity(quantity);
+                        productDto.setWarranty(warranty);
+                        productDto.setMaterialId(materialId);
 
-                    saveProduct(productDto);
+                        saveProduct(productDto);
+                    }
                 }
-
-
             } catch (IOException e) {
                 e.printStackTrace();
                 return ResponseEntity.badRequest().build();
@@ -164,6 +165,18 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    private String getStringCellValue(Row row, int index) {
+        return row.getCell(index) != null ? row.getCell(index).getStringCellValue() : null;
+    }
+
+    private double getDoubleCellValue(Row row, int index) {
+        return row.getCell(index) != null ? row.getCell(index).getNumericCellValue() : 0.0;
+    }
+
+    private Long getLongCellValue(Row row, int index) {
+        return row.getCell(index) != null ? (long) row.getCell(index).getNumericCellValue() : null;
     }
 
     @Override
