@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -53,7 +54,8 @@ public class Product {
     @Column(name = "photos")
     private List<String> photos;
 
-    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.DETACH})
+    @ManyToOne
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinColumn (name = "color_id", referencedColumnName = "id")
     @NotNull
     private Color color;
@@ -74,9 +76,10 @@ public class Product {
     @NotNull
     private double wight;
 
-    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.DETACH})
+    @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     @NotNull
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private Category category;
 
     @Column(name = "quantity")
@@ -87,7 +90,8 @@ public class Product {
     @NotNull
     private int warranty;
 
-    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.DETACH})
+    @ManyToOne
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "material_id", referencedColumnName = "id")
     @NotNull
     private Material material;
