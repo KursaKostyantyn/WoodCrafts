@@ -59,7 +59,7 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "7") int size,
             @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction,
-            @RequestParam(required = false, defaultValue = "false") boolean isAvailable
+            @RequestParam(required = false, defaultValue = "true") boolean isAvailable
     ) {
         return productService.findAllProducts(PageRequest.of(page, size, direction, sortBy),isAvailable);
     }

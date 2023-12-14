@@ -46,6 +46,8 @@ public class ProductSpecificationsUtils {
 
            if(isAvailable){
                predicates.add(criteriaBuilder.greaterThan(root.get("quantity"),0));
+           } else {
+               predicates.add(criteriaBuilder.equal(root.get("quantity"),0));
            }
            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
