@@ -108,8 +108,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest) {
-        Page<Product> page = productRepository.findAll(pageRequest);
+    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest, boolean isAvailable) {
+        Page<Product> page = productRepository.findAll(ProductSpecificationsUtils.isAvailable(isAvailable),pageRequest);
         List<ProductDto> products = page.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         pageWrapperDto.setData(products);

@@ -39,4 +39,16 @@ public class ProductSpecificationsUtils {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
     }
+
+    public static Specification<Product> isAvailable(boolean isAvailable){
+        return ((root, query, criteriaBuilder) -> {
+           List<Predicate> predicates = new ArrayList<>();
+
+           if(isAvailable){
+               predicates.add(criteriaBuilder.greaterThan(root.get("quantity"),0));
+           }
+           return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        });
+    }
+
 }

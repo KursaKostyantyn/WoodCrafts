@@ -20,7 +20,7 @@ public interface ProductService {
 
     ResponseEntity<Void> importListOfProducts(MultipartFile productsFile);
 
-    ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest);
+    ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest,boolean isAvailable);
 
     ResponseEntity<PageWrapperDto<ProductDto>> getFilteredProducts
             (
