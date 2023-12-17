@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ProductService {
 
-    ResponseEntity<Void> saveProduct(ProductDto productDto);
+    ResponseEntity<Void> createProduct(ProductDto productDto);
 
     ResponseEntity<ProductDto> getProductById(Long id);
 
@@ -20,7 +20,7 @@ public interface ProductService {
 
     ResponseEntity<Void> importListOfProducts(MultipartFile productsFile);
 
-    ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest,boolean isAvailable);
+    ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest,boolean isDeleted);
 
     ResponseEntity<PageWrapperDto<ProductDto>> getFilteredProducts
             (
@@ -29,6 +29,9 @@ public interface ProductService {
                     List<Long> colorIds,
                     List<Long> materialIds,
                     int minPrice,
-                    int maxPrice
+                    int maxPrice,
+                    boolean isDeleted
             );
+
+    ResponseEntity<PageWrapperDto<ProductDto>> findAllByName(PageRequest pageRequest, String name,boolean isAvailable);
 }

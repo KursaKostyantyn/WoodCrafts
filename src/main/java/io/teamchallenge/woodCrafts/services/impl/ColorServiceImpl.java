@@ -20,7 +20,7 @@ public class ColorServiceImpl implements ColorService {
     private final ColorRepository colorRepository;
 
     @Override
-    public ResponseEntity<Void> saveColor(ColorDto colorDto) {
+    public ResponseEntity<Void> createColor(ColorDto colorDto) {
         Color color = ColorMapper.convertColorDtoToColor(colorDto);
         colorRepository.save(color);
 

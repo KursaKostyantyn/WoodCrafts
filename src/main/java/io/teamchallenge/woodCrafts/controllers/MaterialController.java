@@ -22,22 +22,22 @@ public class MaterialController {
 
     private final MaterialService materialService;
 
-    @PostMapping("/save")
-    public ResponseEntity<Void> saveMaterial(@RequestBody MaterialDto materialDto) {
-        return materialService.saveMaterial(materialDto);
+    @PostMapping("/createMaterial")
+    public ResponseEntity<Void> createMaterial(@RequestBody MaterialDto materialDto) {
+        return materialService.createMaterial(materialDto);
     }
 
-    @GetMapping("/findById")
+    @GetMapping("/findMaterialById")
     public ResponseEntity<MaterialDto> findMaterialById(@RequestParam Long id) {
         return materialService.findMaterialById(id);
     }
 
-    @DeleteMapping("/deleteById")
+    @DeleteMapping("/deleteMaterialById")
     public ResponseEntity<Void> deleteMaterialById(Long id){
         return materialService.deleteMaterialById(id);
     }
 
-    @PutMapping("/updateById")
+    @PutMapping("/updateMaterialById")
     public ResponseEntity<Void> updateMaterialById(@RequestBody MaterialDto materialDto, @RequestParam Long id){
         return materialService.updateMaterialById(materialDto,id);
     }

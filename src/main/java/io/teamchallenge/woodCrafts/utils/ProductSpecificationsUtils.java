@@ -19,7 +19,8 @@ public class ProductSpecificationsUtils {
                     List<Color> colors,
                     List<Material> materials,
                     int minPrice,
-                    int maxPrice
+                    int maxPrice,
+                    boolean isDeleted
             ) {
         return ((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -30,26 +31,14 @@ public class ProductSpecificationsUtils {
             if (colors != null && !colors.isEmpty()) {
                 predicates.add(root.get("color").in(colors));
             }
-            if (materials!=null && !materials.isEmpty()){
+            if (materials != null && !materials.isEmpty()) {
                 predicates.add(root.get("material").in(materials));
             }
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice));
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice));
+            predicates.add(criteriaBuilder.equal(root.get("deleted"), isDeleted));
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        });
-    }
-
-    public static Specification<Product> isAvailable(boolean isAvailable){
-        return ((root, query, criteriaBuilder) -> {
-           List<Predicate> predicates = new ArrayList<>();
-
-           if(isAvailable){
-               predicates.add(criteriaBuilder.greaterThan(root.get("quantity"),0));
-           } else {
-               predicates.add(criteriaBuilder.equal(root.get("quantity"),0));
-           }
-           return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
     }
 

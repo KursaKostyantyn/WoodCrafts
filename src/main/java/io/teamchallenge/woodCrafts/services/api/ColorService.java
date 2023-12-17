@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ColorService {
 
-    ResponseEntity<Void> saveColor (ColorDto colorDto);
+    ResponseEntity<Void> createColor(ColorDto colorDto);
 
     ResponseEntity<ColorDto> findColorById(Long id);
 

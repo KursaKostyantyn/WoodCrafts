@@ -19,7 +19,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public ResponseEntity<Void> saveCategory(CategoryDto categoryDto) {
+    public ResponseEntity<Void> createCategory(CategoryDto categoryDto) {
         Category category = CategoryMapper.convertCategoryDtoToCategory(categoryDto);
         categoryRepository.save(category);
 
@@ -29,9 +29,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ResponseEntity<CategoryDto> findCategoryById(Long id) {
         Category category = categoryRepository.findById(id).orElse(null);
+        System.out.println("-----------------  "+ id+"------------");
         if (category == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+
 
         return ResponseEntity.status(HttpStatus.OK).body(CategoryMapper.convertCategoryToCategoryDto(category));
     }

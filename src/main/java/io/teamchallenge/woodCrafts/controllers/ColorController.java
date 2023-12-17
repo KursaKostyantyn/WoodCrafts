@@ -22,22 +22,22 @@ public class ColorController {
 
     private final ColorService colorService;
 
-    @PostMapping("/create")
-    public ResponseEntity<Void> saveColor(@RequestBody ColorDto colorDto) {
-        return colorService.saveColor(colorDto);
+    @PostMapping("/createColor")
+    public ResponseEntity<Void> createColor(@RequestBody ColorDto colorDto) {
+        return colorService.createColor(colorDto);
     }
 
-    @GetMapping("/findById")
+    @GetMapping("/findColorById")
     public ResponseEntity<ColorDto> findColorById(@RequestParam Long id) {
         return colorService.findColorById(id);
     }
 
-    @DeleteMapping("/deleteById")
+    @DeleteMapping("/deleteColorById")
     public ResponseEntity<Void> deleteColorById(@RequestParam Long id) {
         return colorService.deleteColorById(id);
     }
 
-    @PutMapping("/updateById")
+    @PutMapping("/updateColorById")
     public ResponseEntity<Void> updateColorById(@RequestBody ColorDto colorDto, @RequestParam Long id) {
         return colorService.updateColorById(colorDto, id);
     }

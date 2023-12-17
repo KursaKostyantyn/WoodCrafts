@@ -7,7 +7,6 @@ import io.teamchallenge.woodCrafts.services.api.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,27 +27,22 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/hello")
-    public ResponseEntity<String> sayHello() {
-        return ResponseEntity.status(HttpStatus.OK).body("Hello world woodCrafts in products");
+    @PostMapping("/createProduct")
+    public ResponseEntity<Void> createProduct(@RequestBody ProductDto productDto) {
+        return productService.createProduct(productDto);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Void> saveProduct(@RequestBody ProductDto productDto) {
-        return productService.saveProduct(productDto);
-    }
-
-    @GetMapping("/findById")
+    @GetMapping("/findProductById")
     public ResponseEntity<ProductDto> findProductById(@RequestParam Long id) {
         return productService.getProductById(id);
     }
 
-    @DeleteMapping("/deleteById")
+    @DeleteMapping("/deleteProductById")
     public ResponseEntity<Void> deleteProductById(Long id) {
         return productService.deleteProductById(id);
     }
 
-    @PutMapping("/updateById")
+    @PutMapping("/updateProductById")
     public ResponseEntity<Void> updateProductById(ProductDto productDto, Long id) {
         return productService.updateProductById(productDto, id);
     }
@@ -59,9 +53,9 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "7") int size,
             @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction,
-            @RequestParam(required = false, defaultValue = "true") boolean isAvailable
+            @RequestParam(required = false, defaultValue = "false") boolean isDeleted
     ) {
-        return productService.findAllProducts(PageRequest.of(page, size, direction, sortBy),isAvailable);
+        return productService.findAllProducts(PageRequest.of(page, size, direction, sortBy), isDeleted);
     }
 
     @PostMapping("/importListOfProducts")
@@ -79,7 +73,8 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "7") int size,
             @RequestParam(required = false, defaultValue = "id") String sortBy,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction
+            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction,
+             @RequestParam(required = false, defaultValue = "false") boolean isDeleted
     ) {
         return productService.getFilteredProducts(
                 PageRequest.of(page, size, direction, sortBy),
@@ -87,7 +82,20 @@ public class ProductController {
                 colorIds,
                 materialIds,
                 minPrice,
-                maxPrice);
+                maxPrice,isDeleted);
+    }
+
+    @GetMapping("/getProductByName")
+    public ResponseEntity<PageWrapperDto<ProductDto>> findAllByName
+            (
+                    @RequestParam(required = false, defaultValue = "0") int page,
+                    @RequestParam(required = false, defaultValue = "7") int size,
+                    @RequestParam(required = false, defaultValue = "id") String sortBy,
+                    @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction,
+                    @RequestParam String name,
+                    @RequestParam(required = false, defaultValue = "false") boolean isDeleted
+            ) {
+        return productService.findAllByName(PageRequest.of(page, size, direction, sortBy), name, isDeleted);
     }
 
 }

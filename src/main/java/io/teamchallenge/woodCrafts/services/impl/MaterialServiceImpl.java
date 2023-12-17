@@ -20,7 +20,7 @@ public class MaterialServiceImpl implements MaterialService {
     private final MaterialRepository materialRepository;
 
     @Override
-    public ResponseEntity<Void> saveMaterial(MaterialDto materialDto) {
+    public ResponseEntity<Void> createMaterial(MaterialDto materialDto) {
         Material material = MaterialMapper.convertMaterialDtoToMaterial(materialDto);
         materialRepository.save(material);
 

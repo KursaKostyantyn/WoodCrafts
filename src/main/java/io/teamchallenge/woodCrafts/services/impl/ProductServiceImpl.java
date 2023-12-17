@@ -42,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
     private final MaterialRepository materialRepository;
 
     @Override
-    public ResponseEntity<Void> saveProduct(ProductDto productDto) {
+    public ResponseEntity<Void> createProduct(ProductDto productDto) {
         Product product = ProductMapper.convertProductDtoToProduct(productDto);
         Category category = categoryRepository.findById(productDto.getCategoryId()).orElse(null);
         if (category == null) {
@@ -108,8 +108,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest, boolean isAvailable) {
-        Page<Product> page = productRepository.findAll(ProductSpecificationsUtils.isAvailable(isAvailable),pageRequest);
+    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest, boolean isDeleted) {
+        Page<Product> page = productRepository.findAllByDeleted(isDeleted, pageRequest);
         List<ProductDto> products = page.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         pageWrapperDto.setData(products);
@@ -153,7 +153,7 @@ public class ProductServiceImpl implements ProductService {
                         productDto.setWarranty(warranty);
                         productDto.setMaterialId(materialId);
 
-                        saveProduct(productDto);
+                        createProduct(productDto);
                     }
                 }
             } catch (IOException e) {
@@ -187,7 +187,8 @@ public class ProductServiceImpl implements ProductService {
                     List<Long> colorIds,
                     List<Long> materialIds,
                     int minPrice,
-                    int maxPrice
+                    int maxPrice,
+                    boolean isDeleted
             ) {
         List<Category> categories = new ArrayList<>();
         for (Long categoryId : categoryIds) {
@@ -203,7 +204,8 @@ public class ProductServiceImpl implements ProductService {
         }
 
 
-        Specification<Product> specification = ProductSpecificationsUtils.filterProduct(categories, colors, materials, minPrice, maxPrice);
+        Specification<Product> specification = ProductSpecificationsUtils
+                .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted);
         Page<Product> filteredProductsPage = productRepository.findAll(specification, pageRequest);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         System.out.println(filteredProductsPage.getContent());
@@ -215,4 +217,14 @@ public class ProductServiceImpl implements ProductService {
         return ResponseEntity.ok(pageWrapperDto);
     }
 
+    @Override
+    public ResponseEntity<PageWrapperDto<ProductDto>> findAllByName(PageRequest pageRequest, String name, boolean isAvailable) {
+        Page<Product> productsByName = productRepository.findAllByNameContainingIgnoreCaseAndDeleted(pageRequest, name, isAvailable);
+        PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
+        pageWrapperDto.setData(productsByName.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList()));
+        pageWrapperDto.setTotalPages(productsByName.getTotalPages());
+        pageWrapperDto.setTotalItems(productsByName.getTotalElements());
+
+        return ResponseEntity.ok(pageWrapperDto);
+    }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CategoryService {
 
-    ResponseEntity<Void> saveCategory(CategoryDto categoryDto);
+    ResponseEntity<Void> createCategory(CategoryDto categoryDto);
 
     ResponseEntity<CategoryDto> findCategoryById(Long id);
 

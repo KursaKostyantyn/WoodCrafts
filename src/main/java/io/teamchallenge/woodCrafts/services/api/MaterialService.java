@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface MaterialService {
 
-    ResponseEntity<Void> saveMaterial(MaterialDto materialDto);
+    ResponseEntity<Void> createMaterial(MaterialDto materialDto);
 
     ResponseEntity<MaterialDto> findMaterialById(Long id);
 
