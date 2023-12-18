@@ -43,7 +43,8 @@ public class ColorServiceImpl implements ColorService {
         if (color == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        colorRepository.delete(color);
+        color.setDeleted(true);
+        colorRepository.save(color);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -54,14 +55,15 @@ public class ColorServiceImpl implements ColorService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         color.setName(colorDto.getName());
+        color.setDeleted(colorDto.isDeleted());
         colorRepository.save(color);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @Override
-    public ResponseEntity<List<ColorDto>> getAllColors() {
-        List<Color> colors = colorRepository.findAll();
+    public ResponseEntity<List<ColorDto>> getAllColors(boolean isDeleted) {
+        List<Color> colors = colorRepository.findAllByDeleted(isDeleted);
         List<ColorDto> colorDtos = colors.stream().map(ColorMapper::convertColorToColorDto).collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(colorDtos);

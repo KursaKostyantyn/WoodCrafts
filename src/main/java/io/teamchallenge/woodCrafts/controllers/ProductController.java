@@ -74,7 +74,7 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "7") int size,
             @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction,
-             @RequestParam(required = false, defaultValue = "false") boolean isDeleted
+            @RequestParam(required = false, defaultValue = "false") boolean isDeleted
     ) {
         return productService.getFilteredProducts(
                 PageRequest.of(page, size, direction, sortBy),
@@ -82,7 +82,7 @@ public class ProductController {
                 colorIds,
                 materialIds,
                 minPrice,
-                maxPrice,isDeleted);
+                maxPrice, isDeleted);
     }
 
     @GetMapping("/getProductByName")

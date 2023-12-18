@@ -15,5 +15,5 @@ public interface CategoryService {
 
     ResponseEntity<Void> updateCategoryById(CategoryDto categoryDto, Long id);
 
-    ResponseEntity<List<CategoryDto>> getAllCategories();
+    ResponseEntity<List<CategoryDto>> getAllCategories(boolean isDeleted);
 }

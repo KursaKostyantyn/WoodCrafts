@@ -38,12 +38,15 @@ public class ColorController {
     }
 
     @PutMapping("/updateColorById")
-    public ResponseEntity<Void> updateColorById(@RequestBody ColorDto colorDto, @RequestParam Long id) {
+    public ResponseEntity<Void> updateColorById(
+            @RequestBody ColorDto colorDto,
+            @RequestParam Long id,
+            @RequestParam(required = false, defaultValue = "false") boolean isDeleted) {
         return colorService.updateColorById(colorDto, id);
     }
 
     @GetMapping("/getAllColors")
-    public ResponseEntity<List<ColorDto>> getAllColors() {
-        return colorService.getAllColors();
+    public ResponseEntity<List<ColorDto>> getAllColors(@RequestParam(required = false, defaultValue = "false") boolean isDeleted) {
+        return colorService.getAllColors(isDeleted);
     }
 }

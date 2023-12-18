@@ -15,5 +15,5 @@ public interface MaterialService {
 
     ResponseEntity<Void> updateMaterialById(MaterialDto materialDto, Long id);
 
-    ResponseEntity<List<MaterialDto>> findAllMaterials();
+    ResponseEntity<List<MaterialDto>> findAllMaterials(boolean isDeleted);
 }

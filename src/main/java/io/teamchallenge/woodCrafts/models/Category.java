@@ -35,6 +35,9 @@ public class Category {
     @NotNull
     private String name;
 
+    @Column(name = "deleted")
+    private boolean deleted;
+
     @OneToMany(mappedBy = "category")
     @ToString.Exclude
     private List<Product> products;

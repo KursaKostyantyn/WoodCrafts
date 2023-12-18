@@ -17,4 +17,5 @@ public class OrderDto {
     private LocalDateTime orderDate;
     private String address;
     private Status status;
+    private boolean deleted;
 }

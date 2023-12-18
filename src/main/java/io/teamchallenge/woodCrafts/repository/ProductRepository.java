@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
-    Page<Product> findAllByDeleted(boolean deleted, PageRequest pageRequest);
+    Page<Product> findAllByDeleted(boolean isDeleted, PageRequest pageRequest);
 
     Page<Product> findAllByNameContainingIgnoreCaseAndDeleted(PageRequest pageRequest, String name, boolean deleted);
 }

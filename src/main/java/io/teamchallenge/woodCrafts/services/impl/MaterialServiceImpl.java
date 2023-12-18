@@ -43,6 +43,9 @@ public class MaterialServiceImpl implements MaterialService {
         if (material == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        material.setDeleted(true);
+        materialRepository.save(material);
+
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -53,14 +56,19 @@ public class MaterialServiceImpl implements MaterialService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         material.setName(materialDto.getName());
+        material.setDeleted(materialDto.isDeleted());
         materialRepository.save(material);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @Override
-    public ResponseEntity<List<MaterialDto>> findAllMaterials() {
-        List<MaterialDto> materials = materialRepository.findAll().stream().map(MaterialMapper::convertMaterialToMaterialDto).collect(Collectors.toList());
+    public ResponseEntity<List<MaterialDto>> findAllMaterials(boolean isDeleted) {
+        List<MaterialDto> materials = materialRepository.findAllByDeleted(isDeleted)
+                .stream()
+                .map(MaterialMapper::convertMaterialToMaterialDto)
+                .collect(Collectors.toList());
+
         return ResponseEntity.status(HttpStatus.OK).body(materials);
     }
 }

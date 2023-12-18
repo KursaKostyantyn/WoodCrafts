@@ -29,7 +29,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ResponseEntity<CategoryDto> findCategoryById(Long id) {
         Category category = categoryRepository.findById(id).orElse(null);
-        System.out.println("-----------------  "+ id+"------------");
         if (category == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -44,7 +43,8 @@ public class CategoryServiceImpl implements CategoryService {
         if (category == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        categoryRepository.delete(category);
+        category.setDeleted(true);
+        categoryRepository.save(category);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -56,14 +56,15 @@ public class CategoryServiceImpl implements CategoryService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         category.setName(categoryDto.getName());
+        category.setDeleted(categoryDto.isDeleted());
         categoryRepository.save(category);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @Override
-    public ResponseEntity<List<CategoryDto>> getAllCategories() {
-        List<Category> categories = categoryRepository.findAll();
+    public ResponseEntity<List<CategoryDto>> getAllCategories(boolean isDeleted) {
+        List<Category> categories = categoryRepository.findAllByDeleted(isDeleted);
         List<CategoryDto> categoryDtos = categories.stream().map(CategoryMapper::convertCategoryToCategoryDto).collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(categoryDtos);

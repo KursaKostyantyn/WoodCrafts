@@ -13,4 +13,5 @@ public class ColorDto {
 
     private Long id;
     private String name;
+    private boolean deleted;
 }

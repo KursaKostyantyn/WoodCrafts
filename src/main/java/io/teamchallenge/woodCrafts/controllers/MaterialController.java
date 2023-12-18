@@ -43,7 +43,7 @@ public class MaterialController {
     }
 
     @GetMapping("/getAllMaterials")
-    public ResponseEntity<List<MaterialDto>> findAllMaterials(){
-        return materialService.findAllMaterials();
+    public ResponseEntity<List<MaterialDto>> findAllMaterials(boolean isDeleted){
+        return materialService.findAllMaterials(isDeleted);
     }
 }

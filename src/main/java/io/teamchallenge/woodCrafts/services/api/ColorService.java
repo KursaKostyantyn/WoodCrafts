@@ -15,6 +15,6 @@ public interface ColorService {
 
     ResponseEntity<Void> updateColorById (ColorDto colorDto, Long id);
 
-    ResponseEntity<List<ColorDto>> getAllColors();
+    ResponseEntity<List<ColorDto>> getAllColors(boolean isDeleted);
 
 }

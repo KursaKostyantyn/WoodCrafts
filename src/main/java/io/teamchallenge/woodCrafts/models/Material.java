@@ -32,6 +32,9 @@ public class Material {
     @NotNull
     private String name;
 
+    @Column(name = "deleted")
+    private boolean deleted;
+
     @OneToMany(mappedBy = "color")
     @ToString.Exclude
     private List<Product> products;

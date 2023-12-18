@@ -47,7 +47,7 @@ public class CategoryController {
     }
 
     @GetMapping("/getAllCategories")
-    public ResponseEntity<List<CategoryDto>> getAllCategories() {
-        return categoryService.getAllCategories();
+    public ResponseEntity<List<CategoryDto>> getAllCategories(@RequestParam(required = false, defaultValue = "false") boolean isDeleted) {
+        return categoryService.getAllCategories(isDeleted);
     }
 }

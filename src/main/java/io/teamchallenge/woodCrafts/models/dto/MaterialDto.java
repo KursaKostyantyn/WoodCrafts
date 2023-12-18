@@ -13,4 +13,5 @@ public class MaterialDto {
 
     private Long id;
     private String name;
+    private boolean deleted;
 }
