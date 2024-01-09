@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -23,7 +24,7 @@ public class ColorController {
     private final ColorService colorService;
 
     @PostMapping("/createColor")
-    public ResponseEntity<Void> createColor(@RequestBody ColorDto colorDto) {
+    public ResponseEntity<Void> createColor(@Valid @RequestBody ColorDto colorDto) {
         return colorService.createColor(colorDto);
     }
 
@@ -39,9 +40,10 @@ public class ColorController {
 
     @PutMapping("/updateColorById")
     public ResponseEntity<Void> updateColorById(
+            @Valid
             @RequestBody ColorDto colorDto,
-            @RequestParam Long id,
-            @RequestParam(required = false, defaultValue = "false") boolean isDeleted) {
+            @RequestParam Long id
+    ) {
         return colorService.updateColorById(colorDto, id);
     }
 

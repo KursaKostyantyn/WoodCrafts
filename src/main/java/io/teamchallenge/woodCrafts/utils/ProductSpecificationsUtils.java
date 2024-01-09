@@ -8,7 +8,6 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ProductSpecificationsUtils {
@@ -20,7 +19,8 @@ public class ProductSpecificationsUtils {
                     List<Material> materials,
                     int minPrice,
                     int maxPrice,
-                    boolean isDeleted
+                    boolean isDeleted,
+                    boolean inStock
             ) {
         return ((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -33,6 +33,9 @@ public class ProductSpecificationsUtils {
             }
             if (materials != null && !materials.isEmpty()) {
                 predicates.add(root.get("material").in(materials));
+            }
+            if (inStock) {
+                predicates.add(criteriaBuilder.greaterThan(root.get("quantity"), 0));
             }
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice));
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice));

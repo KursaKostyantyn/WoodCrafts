@@ -12,6 +12,11 @@ public class ProductMapper {
 
     public static Product convertProductDtoToProduct(ProductDto productDto) {
         ModelMapper modelMapper = new ModelMapper();
+        modelMapper.typeMap(ProductDto.class,Product.class)
+                .addMappings(mapper->{
+                    mapper.skip(Product::setCreationDate);
+                    mapper.skip(Product::setUpdateDate);
+                });
 
         return modelMapper.map(productDto, Product.class);
     }

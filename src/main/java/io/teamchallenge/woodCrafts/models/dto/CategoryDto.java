@@ -4,7 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import springfox.documentation.annotations.ApiIgnore;
+
+import javax.validation.constraints.NotBlank;
 
 
 @RequiredArgsConstructor
@@ -14,6 +15,7 @@ import springfox.documentation.annotations.ApiIgnore;
 public class CategoryDto {
 
     private Long id;
+    @NotBlank(message = "Name cannot be blank")
     private String name;
     private boolean deleted;
 }

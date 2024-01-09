@@ -1,5 +1,7 @@
 package io.teamchallenge.woodCrafts.services.impl;
 
+import io.teamchallenge.woodCrafts.exception.DuplicateException;
+import io.teamchallenge.woodCrafts.exception.EntityNotFoundException;
 import io.teamchallenge.woodCrafts.mapper.MaterialMapper;
 import io.teamchallenge.woodCrafts.models.Material;
 import io.teamchallenge.woodCrafts.models.dto.MaterialDto;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +24,10 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public ResponseEntity<Void> createMaterial(MaterialDto materialDto) {
+        Optional<Material> existingMaterial = materialRepository.findByName(materialDto.getName());
+        if (existingMaterial.isPresent()) {
+            throw new DuplicateException(String.format("Material with name='%s' already exists", materialDto.getName()));
+        }
         Material material = MaterialMapper.convertMaterialDtoToMaterial(materialDto);
         materialRepository.save(material);
 
@@ -29,20 +36,14 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public ResponseEntity<MaterialDto> findMaterialById(Long id) {
-        Material material = materialRepository.findById(id).orElse(null);
-        if (material == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Material material = materialRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", id)));
 
         return ResponseEntity.status(HttpStatus.OK).body(MaterialMapper.convertMaterialToMaterialDto(material));
     }
 
     @Override
     public ResponseEntity<Void> deleteMaterialById(Long id) {
-        Material material = materialRepository.findById(id).orElse(null);
-        if (material == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Material material = materialRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", id)));
         material.setDeleted(true);
         materialRepository.save(material);
 
@@ -51,9 +52,10 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public ResponseEntity<Void> updateMaterialById(MaterialDto materialDto, Long id) {
-        Material material = materialRepository.findById(id).orElse(null);
-        if (material == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        Material material = materialRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", id)));
+        Optional<Material> existingMaterial = materialRepository.findByName(materialDto.getName());
+        if (existingMaterial.isPresent() && existingMaterial.get().getId().equals(id)) {
+            throw new DuplicateException(String.format("Material with name='%s' already exists", materialDto.getName()));
         }
         material.setName(materialDto.getName());
         material.setDeleted(materialDto.isDeleted());

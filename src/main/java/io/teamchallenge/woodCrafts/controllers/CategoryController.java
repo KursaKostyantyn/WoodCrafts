@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/createCategory")
-    public ResponseEntity<Void> createCategory(@RequestBody CategoryDto categoryDto) {
+    public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
         return categoryService.createCategory(categoryDto);
     }
 
@@ -42,7 +43,7 @@ public class CategoryController {
     }
 
     @PutMapping("/updateCategoryById")
-    public ResponseEntity<Void> updateCategoryById(@RequestBody CategoryDto categoryDto, @RequestParam @Min(1) Long id) {
+    public ResponseEntity<Void> updateCategoryById(@Valid @RequestBody CategoryDto categoryDto, @RequestParam @Min(1) Long id) {
         return categoryService.updateCategoryById(categoryDto, id);
     }
 
