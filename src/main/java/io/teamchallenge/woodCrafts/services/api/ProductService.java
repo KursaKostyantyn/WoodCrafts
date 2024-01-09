@@ -30,8 +30,11 @@ public interface ProductService {
                     List<Long> materialIds,
                     int minPrice,
                     int maxPrice,
-                    boolean isDeleted
+                    boolean isDeleted,
+                    boolean inStock
             );
 
     ResponseEntity<PageWrapperDto<ProductDto>> findAllByName(PageRequest pageRequest, String name,boolean isAvailable);
+
+    ResponseEntity<Void> deleteProductList(List<ProductDto> productDtoList);
 }

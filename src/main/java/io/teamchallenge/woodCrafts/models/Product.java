@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -17,9 +18,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -53,8 +56,8 @@ public class Product {
     private List<String> photos;
 
     @ManyToOne
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
-    @JoinColumn (name = "color_id", referencedColumnName = "id")
+    @Cascade(CascadeType.SAVE_UPDATE)
+    @JoinColumn(name = "color_id", referencedColumnName = "id")
     @NotNull
     private Color color;
 
@@ -104,4 +107,8 @@ public class Product {
 
     @Column(name = "deleted")
     private boolean deleted;
+
+    @OneToMany(mappedBy = "product")
+    @ToString.Exclude
+    private List<ProductLine> productLines = new ArrayList<>();
 }

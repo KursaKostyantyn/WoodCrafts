@@ -1,5 +1,6 @@
 package io.teamchallenge.woodCrafts.services.impl;
 
+import io.teamchallenge.woodCrafts.exception.EntityNotFoundException;
 import io.teamchallenge.woodCrafts.mapper.ProductMapper;
 import io.teamchallenge.woodCrafts.models.Category;
 import io.teamchallenge.woodCrafts.models.Color;
@@ -13,8 +14,8 @@ import io.teamchallenge.woodCrafts.repository.MaterialRepository;
 import io.teamchallenge.woodCrafts.repository.ProductRepository;
 import io.teamchallenge.woodCrafts.services.api.ProductService;
 import io.teamchallenge.woodCrafts.utils.ProductSpecificationsUtils;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -32,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -44,20 +45,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<Void> createProduct(ProductDto productDto) {
         Product product = ProductMapper.convertProductDtoToProduct(productDto);
-        Category category = categoryRepository.findById(productDto.getCategoryId()).orElse(null);
-        if (category == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Category category = categoryRepository.findById(productDto.getCategoryId()).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", productDto.getCategoryId())));
         product.setCategory(category);
-        Color color = colorRepository.findById(productDto.getColorId()).orElse(null);
-        if (color == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Color color = colorRepository.findById(productDto.getColorId()).orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", productDto.getColorId())));
         product.setColor(color);
-        Material material = materialRepository.findById(productDto.getMaterialId()).orElse(null);
-        if (material == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Material material = materialRepository.findById(productDto.getMaterialId()).orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", productDto.getMaterialId())));
         product.setMaterial(material);
         productRepository.save(product);
 
@@ -66,38 +58,26 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<ProductDto> getProductById(Long id) {
-        //todo create handler if product not found
-        Product product = productRepository.findById(id).orElse(null);
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
 
         return ResponseEntity.status(HttpStatus.OK).body(ProductMapper.convertProductToProductDto(product));
     }
 
     @Override
     public ResponseEntity<Void> deleteProductById(Long id) {
-        Product product = productRepository.findById(id).orElse(null);
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        productRepository.delete(product);
+        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
+        product.setDeleted(true);
+        productRepository.save(product);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @Override
     public ResponseEntity<Void> updateProductById(ProductDto productDto, Long id) {
-        Product product = productRepository.findById(id).orElse(null);
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        Category category = categoryRepository.findById(productDto.getCategoryId()).orElse(null);
-        Color color = colorRepository.findById(productDto.getColorId()).orElse(null);
-        Material material = materialRepository.findById(productDto.getMaterialId()).orElse(null);
-        if (category == null | color == null | material == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
+        Category category = categoryRepository.findById(productDto.getCategoryId()).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", productDto.getCategoryId())));
+        Color color = colorRepository.findById(productDto.getColorId()).orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", productDto.getColorId())));
+        Material material = materialRepository.findById(productDto.getMaterialId()).orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", productDto.getMaterialId())));
         ProductMapper.updateProductFromProductDto(productDto, product);
         product.setCategory(category);
         product.setColor(color);
@@ -110,7 +90,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest, boolean isDeleted) {
         Page<Product> page = productRepository.findAllByDeleted(isDeleted, pageRequest);
-        List<ProductDto> products = page.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
+        List<ProductDto> products = page.getContent().stream()
+                .map(ProductMapper::convertProductToProductDto)
+                .collect(Collectors.toList());
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         pageWrapperDto.setData(products);
         pageWrapperDto.setTotalPages(page.getTotalPages());
@@ -120,6 +102,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Deprecated
     public ResponseEntity<Void> importListOfProducts(@NonNull MultipartFile productsFile) {
         if (!productsFile.isEmpty()) {
             try (Workbook workbook = WorkbookFactory.create(productsFile.getInputStream())) {
@@ -157,7 +140,6 @@ public class ProductServiceImpl implements ProductService {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
                 return ResponseEntity.badRequest().build();
             }
         } else {
@@ -188,27 +170,31 @@ public class ProductServiceImpl implements ProductService {
                     List<Long> materialIds,
                     int minPrice,
                     int maxPrice,
-                    boolean isDeleted
+                    boolean isDeleted,
+                    boolean inStock
             ) {
         List<Category> categories = new ArrayList<>();
-        for (Long categoryId : categoryIds) {
-            categories.add(categoryRepository.findById(categoryId).orElse(null));
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            for (Long categoryId : categoryIds) {
+                categories.add(categoryRepository.findById(categoryId).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", categoryId))));
+            }
         }
         List<Color> colors = new ArrayList<>();
-        for (Long colorId : colorIds) {
-            colors.add(colorRepository.findById(colorId).orElse(null));
+        if (categoryIds != null && !categoryIds.isEmpty()) {
+            for (Long colorId : colorIds) {
+                colors.add(colorRepository.findById(colorId).orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", colorId))));
+            }
         }
         List<Material> materials = new ArrayList<>();
-        for (Long materialId : materialIds) {
-            materials.add(materialRepository.findById(materialId).orElse(null));
+        if (materialIds != null && !materialIds.isEmpty()) {
+            for (Long materialId : materialIds) {
+                materials.add(materialRepository.findById(materialId).orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", materialId))));
+            }
         }
-
-
         Specification<Product> specification = ProductSpecificationsUtils
-                .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted);
+                .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted, inStock);
         Page<Product> filteredProductsPage = productRepository.findAll(specification, pageRequest);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
-        System.out.println(filteredProductsPage.getContent());
         List<ProductDto> collect = filteredProductsPage.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
         pageWrapperDto.setData(collect);
         pageWrapperDto.setTotalPages(filteredProductsPage.getTotalPages());
@@ -226,5 +212,18 @@ public class ProductServiceImpl implements ProductService {
         pageWrapperDto.setTotalItems(productsByName.getTotalElements());
 
         return ResponseEntity.ok(pageWrapperDto);
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteProductList(List<ProductDto> productDtoList) {
+        List<Product> products = new ArrayList<>();
+        productDtoList.forEach(productDto -> {
+            Product product = productRepository.findById(productDto.getId()).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", productDto.getId())));
+            product.setDeleted(true);
+            products.add(product);
+        });
+        productRepository.saveAll(products);
+
+        return ResponseEntity.ok().build();
     }
 }

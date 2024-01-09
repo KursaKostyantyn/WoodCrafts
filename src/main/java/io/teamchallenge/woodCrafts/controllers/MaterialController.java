@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -23,7 +24,7 @@ public class MaterialController {
     private final MaterialService materialService;
 
     @PostMapping("/createMaterial")
-    public ResponseEntity<Void> createMaterial(@RequestBody MaterialDto materialDto) {
+    public ResponseEntity<Void> createMaterial(@Valid @RequestBody MaterialDto materialDto) {
         return materialService.createMaterial(materialDto);
     }
 
@@ -38,7 +39,7 @@ public class MaterialController {
     }
 
     @PutMapping("/updateMaterialById")
-    public ResponseEntity<Void> updateMaterialById(@RequestBody MaterialDto materialDto, @RequestParam Long id){
+    public ResponseEntity<Void> updateMaterialById(@Valid @RequestBody MaterialDto materialDto, @RequestParam Long id){
         return materialService.updateMaterialById(materialDto,id);
     }
 
