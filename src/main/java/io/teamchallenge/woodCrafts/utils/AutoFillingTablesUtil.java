@@ -7,11 +7,14 @@ import io.teamchallenge.woodCrafts.models.Material;
 import io.teamchallenge.woodCrafts.models.Order;
 import io.teamchallenge.woodCrafts.models.Product;
 import io.teamchallenge.woodCrafts.models.ProductLine;
+import io.teamchallenge.woodCrafts.models.User;
+import io.teamchallenge.woodCrafts.models.dto.UserDto;
 import io.teamchallenge.woodCrafts.repository.CategoryRepository;
 import io.teamchallenge.woodCrafts.repository.ColorRepository;
 import io.teamchallenge.woodCrafts.repository.MaterialRepository;
 import io.teamchallenge.woodCrafts.repository.OrderRepository;
 import io.teamchallenge.woodCrafts.repository.ProductRepository;
+import io.teamchallenge.woodCrafts.services.api.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -25,11 +28,12 @@ import java.util.Random;
 @Service
 @AllArgsConstructor
 public class AutoFillingTablesUtil {
-    private CategoryRepository categoryRepository;
-    private ColorRepository colorRepository;
-    private MaterialRepository materialRepository;
-    private ProductRepository productRepository;
-    private OrderRepository orderRepository;
+    private final CategoryRepository categoryRepository;
+    private final ColorRepository colorRepository;
+    private final MaterialRepository materialRepository;
+    private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+    private final UserService userService;
 
     @Bean
     @Transactional
@@ -40,6 +44,7 @@ public class AutoFillingTablesUtil {
             saveCategory();
             saveColoros();
             saveMaterials();
+            saveUsers();
             saveProducts(numberOfProducts);
             saveOrders(20);
 
@@ -48,8 +53,11 @@ public class AutoFillingTablesUtil {
 
 
     private void saveOrders(int numberOfOrders) {
+        List<User> users = userService.findAllUsers();
         for (int i = 0; i < numberOfOrders; i++) {
             Order order = new Order();
+            User user = users.get((int) Math.floor(Math.random() * users.size()));
+            System.out.println("-----------------" + user);
             order.setStatus(getStatus());
             order.setAddress(getAdresses());
             order.setDeleted(false);
@@ -59,6 +67,12 @@ public class AutoFillingTablesUtil {
                     .mapToDouble(ProductLine::getTotalProductLineAmount)
                     .sum();
             order.setTotalPrice(Math.round(total * 100.0) / 100.0);
+            order.setUser(user);
+            System.out.println("-----------------" + user);
+            if (user.getOrders()==null){
+                System.out.println("orders == null");
+            }
+            user.getOrders().add(order);
             orderRepository.save(order);
         }
     }
@@ -169,6 +183,22 @@ public class AutoFillingTablesUtil {
             material.setProducts(new ArrayList<>());
             materialRepository.save(material);
         });
+    }
+
+    private void saveUsers() {
+
+        for (int i = 1; i <= 5; i++) {
+            UserDto userDto = new UserDto();
+            userDto.setAddress(getAdresses());
+            userDto.setEmail("test" + i + "@test.com");
+            userDto.setPassword("123456");
+            userDto.setPhone("1234567" + i);
+            userDto.setFirstName("User first name " + i);
+            userDto.setSecondName("User second name " + i);
+            userDto.setOrders(new ArrayList<>());
+
+            userService.saveUser(userDto);
+        }
     }
 
     private void saveProducts(int numberOfProducts) {

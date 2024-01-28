@@ -27,4 +27,5 @@ public class OrderDto {
     private Boolean deleted;
     @NotBlank(message = "Total price cannot be blank")
     private Double totalPrice;
+    private UserDto userDto;
 }

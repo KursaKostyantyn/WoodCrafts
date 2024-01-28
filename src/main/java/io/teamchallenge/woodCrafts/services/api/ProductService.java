@@ -36,6 +36,7 @@ public interface ProductService {
                     int maxPrice,
                     boolean isDeleted,
                     boolean inStock,
+                    boolean notAvailable,
                     LocalDateTime dateFrom,
                     LocalDateTime dateTo
             );

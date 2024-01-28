@@ -22,6 +22,7 @@ public class ProductSpecificationsUtils {
                     int maxPrice,
                     boolean isDeleted,
                     boolean inStock,
+                    boolean notAvailable,
                     LocalDateTime dateFrom,
                     LocalDateTime dateTo
             ) {
@@ -37,8 +38,11 @@ public class ProductSpecificationsUtils {
             if (materials != null && !materials.isEmpty()) {
                 predicates.add(root.get("material").in(materials));
             }
-            if (inStock) {
+            if (inStock && !notAvailable) {
                 predicates.add(criteriaBuilder.greaterThan(root.get("quantity"), 0));
+            }
+            if (!inStock && notAvailable){
+                predicates.add(criteriaBuilder.equal(root.get("quantity"),0));
             }
             if (dateFrom != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("creationDate"), dateFrom));

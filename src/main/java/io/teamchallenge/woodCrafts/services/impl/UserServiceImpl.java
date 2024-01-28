@@ -8,6 +8,8 @@ import io.teamchallenge.woodCrafts.services.api.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
@@ -26,5 +28,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.getUserByEmail(email);
 
         return UserMapper.convertUserToUserDto(user);
+    }
+
+    @Override
+    public List<User> findAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users;
     }
 }

@@ -88,7 +88,8 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "ASC") Sort.Direction direction,
             @RequestParam(required = false, defaultValue = "false") boolean isDeleted,
-            @RequestParam(required = false, defaultValue = "false") boolean inStock,
+            @RequestParam(required = false, defaultValue = "true") boolean inStock,
+            @RequestParam(required = false, defaultValue = "true") boolean notAvailable,
             @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") @RequestParam(required = false) LocalDateTime dateFrom,
             @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") @RequestParam(required = false) LocalDateTime dateTo
     ) {
@@ -101,6 +102,7 @@ public class ProductController {
                 maxPrice,
                 isDeleted,
                 inStock,
+                notAvailable,
                 dateFrom,
                 dateTo
         );

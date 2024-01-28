@@ -236,6 +236,7 @@ public class ProductServiceImpl implements ProductService {
                     int maxPrice,
                     boolean isDeleted,
                     boolean inStock,
+                    boolean notAvailable,
                     LocalDateTime dateFrom,
                     LocalDateTime dateTo
             ) {
@@ -258,7 +259,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         Specification<Product> specification = ProductSpecificationsUtils
-                .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted, inStock, dateFrom, dateTo);
+                .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted, inStock, notAvailable, dateFrom, dateTo);
         Page<Product> filteredProductsPage = productRepository.findAll(specification, pageRequest);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         List<ProductDto> collect = filteredProductsPage.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
