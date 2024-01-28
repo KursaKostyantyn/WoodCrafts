@@ -111,6 +111,13 @@ public class AutoFillingTablesUtil {
         categoryNames.add("Ліжка");
         categoryNames.add("Крісла");
         categoryNames.add("Шафи");
+        categoryNames.add("Тумбочки приліжкоіа");
+        categoryNames.add("Туалетні столики");
+        categoryNames.add("Пуфи");
+        categoryNames.add("Шафи для одягу");
+        categoryNames.add("Дивани");
+        categoryNames.add("Журнальні столики");
+        categoryNames.add("Шезлонги");
         categoryNames.forEach(categoryName -> {
             Category category = new Category();
             category.setName(categoryName);
@@ -122,10 +129,18 @@ public class AutoFillingTablesUtil {
     private void saveColoros() {
         List<String> colorNames = new ArrayList<>();
         colorNames.add("червоний");
-        colorNames.add("синій");
+        colorNames.add("блакитний");
         colorNames.add("зелений");
         colorNames.add("жовтий");
         colorNames.add("чорний");
+        colorNames.add("золотий");
+        colorNames.add("яйця дрозда");
+        colorNames.add("Аквамариновий");
+        colorNames.add("Вода пляжа Бонді");
+        colorNames.add("Яскраво-рожевий");
+        colorNames.add("Вишневий");
+        colorNames.add("Персиковий");
+
         colorNames.forEach(colorName -> {
             Color color = new Color();
             color.setName(colorName);
@@ -141,6 +156,13 @@ public class AutoFillingTablesUtil {
         materialNames.add("залізо");
         materialNames.add("пластик");
         materialNames.add("скло");
+        materialNames.add("МДФ");
+        materialNames.add("ДСП");
+        materialNames.add("Очерет");
+        materialNames.add("Ротанг");
+        materialNames.add("Акрил");
+        materialNames.add("Алюміній");
+        materialNames.add("Чугуній");
         materialNames.forEach(materialName -> {
             Material material = new Material();
             material.setName(materialName);
@@ -150,7 +172,7 @@ public class AutoFillingTablesUtil {
     }
 
     private void saveProducts(int numberOfProducts) {
-        for (long i = 1; i < 6; i++) {
+        for (long i = 1; i <= 12; i++) {
             for (int j = 0; j < numberOfProducts; j++) {
                 Product product = getNewProduct(i);
                 productRepository.save(product);
@@ -171,7 +193,7 @@ public class AutoFillingTablesUtil {
         product.setDescription(generateRandomString(100));
         product.setHeight(Math.round(Math.random() * 100) / 10.0);
         product.setLength(Math.round(Math.random() * 100) / 10.0);
-        product.setWight(Math.round(Math.random() * 100) / 10.0);
+        product.setWidth(Math.round(Math.random() * 100) / 10.0);
         product.setWeight(Math.round(Math.random() * 100) / 10.0);
         product.setPhotos(Collections.singletonList("https://content1.rozetka.com.ua/goods/images/big/273094280.jpg"));
         product.setPrice(Math.round(Math.random() * 100000) / 100.0);

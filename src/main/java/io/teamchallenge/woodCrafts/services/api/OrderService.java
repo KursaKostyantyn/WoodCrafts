@@ -1,9 +1,13 @@
 package io.teamchallenge.woodCrafts.services.api;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.teamchallenge.woodCrafts.models.dto.OrderDto;
 import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public interface OrderService {
 
@@ -12,8 +16,21 @@ public interface OrderService {
     ResponseEntity<OrderDto> getOrderById(Long id);
 
     ResponseEntity<Void> updateOrderById(Long id, OrderDto orderDto);
+//    ResponseEntity<Void> updateOrderById(Long id, Map<String,String> updates);
 
     ResponseEntity<PageWrapperDto<OrderDto>> getAllOrders(PageRequest of, boolean isDeleted);
 
-    ResponseEntity<PageWrapperDto<OrderDto>> getFilteredOrders();
+    ResponseEntity<PageWrapperDto<OrderDto>> getFilteredOrders(
+            PageRequest pageRequest,
+            boolean isDeleted,
+            LocalDateTime fromCreationDate,
+            LocalDateTime toCreationDate,
+            double minTotal,
+            double maxTotal,
+            String statusName
+    );
+
+    //    ResponseEntity<Void> deleteOrders(List<OrderDto> orderIds);
+    ResponseEntity<Void> deleteOrders(List<ObjectNode> orderIds);
+
 }

@@ -49,9 +49,9 @@ public class Order {
     private List<ProductLine> productLines = new ArrayList<>();
 
     @Column(name = "deleted")
-    private boolean deleted;
+    private Boolean deleted;
 
     @Column(name = "total_price")
-    private double totalPrice;
+    private Double totalPrice;
 
 }

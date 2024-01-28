@@ -24,7 +24,7 @@ public class OrderDto {
     @NotBlank(message = "Status cannot be blank")
     private String status;
     private List<ProductLineDto> productLinesDto;
-    private boolean deleted;
+    private Boolean deleted;
     @NotBlank(message = "Total price cannot be blank")
-    private double totalPrice;
+    private Double totalPrice;
 }

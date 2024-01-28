@@ -7,6 +7,7 @@ import io.teamchallenge.woodCrafts.models.Product;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Predicate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,9 @@ public class ProductSpecificationsUtils {
                     int minPrice,
                     int maxPrice,
                     boolean isDeleted,
-                    boolean inStock
+                    boolean inStock,
+                    LocalDateTime dateFrom,
+                    LocalDateTime dateTo
             ) {
         return ((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -36,6 +39,12 @@ public class ProductSpecificationsUtils {
             }
             if (inStock) {
                 predicates.add(criteriaBuilder.greaterThan(root.get("quantity"), 0));
+            }
+            if (dateFrom != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("creationDate"), dateFrom));
+            }
+            if (dateTo != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("creationDate"), dateTo));
             }
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice));
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice));

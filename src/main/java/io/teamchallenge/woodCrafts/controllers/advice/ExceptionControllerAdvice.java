@@ -3,6 +3,7 @@ package io.teamchallenge.woodCrafts.controllers.advice;
 import io.teamchallenge.woodCrafts.exception.DuplicateException;
 import io.teamchallenge.woodCrafts.exception.EntityNotFoundException;
 import io.teamchallenge.woodCrafts.exception.ErrorInformation;
+import io.teamchallenge.woodCrafts.exception.UpdatesNumberFormatException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,6 +49,10 @@ public class ExceptionControllerAdvice {
                 .getFieldErrors().forEach(fieldError -> errors.add(fieldError.getObjectName() + ":" + fieldError.getDefaultMessage()));
         String message = String.format("Validation of request failing '%s", (String.join(", ", errors)));
         return getResponseBody(BAD_REQUEST, message);
+    }
+    @ExceptionHandler(UpdatesNumberFormatException.class)
+    public ResponseEntity<ErrorInformation> handleUpdatesNumberFormatException (UpdatesNumberFormatException ex){
+        return getResponseBody(BAD_REQUEST,ex.getMessage());
     }
 
 

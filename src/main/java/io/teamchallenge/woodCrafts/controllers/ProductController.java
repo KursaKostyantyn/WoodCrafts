@@ -1,12 +1,14 @@
 package io.teamchallenge.woodCrafts.controllers;
 
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
 import io.teamchallenge.woodCrafts.services.api.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,14 +45,19 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
-    @DeleteMapping("/deleteProductById")
-    public ResponseEntity<Void> deleteProductById(@RequestParam @Min(1) Long id) {
-        return productService.deleteProductById(id);
-    }
+//    @DeleteMapping()
+//    public ResponseEntity<Void> deleteProductById(@RequestParam @Min(1) Long id) {
+//        return productService.deleteProductById(id);
+//    }
+
+//    @PutMapping("/updateProductById")
+//    public ResponseEntity<Void> updateProductById(@Valid @RequestBody ProductDto productDto,@RequestParam @Min(1) Long id) {
+//        return productService.updateProductById(productDto, id);
+//    }
 
     @PutMapping("/updateProductById")
-    public ResponseEntity<Void> updateProductById(@Valid @RequestBody ProductDto productDto,@RequestParam @Min(1) Long id) {
-        return productService.updateProductById(productDto, id);
+    public ResponseEntity<Void> updateProductById(@RequestBody Map<String, String> updates, @RequestParam @Min(1) Long id) {
+        return productService.updateProductById(updates, id);
     }
 
     @GetMapping("/getAllProducts")
@@ -79,7 +88,9 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "ASC") Sort.Direction direction,
             @RequestParam(required = false, defaultValue = "false") boolean isDeleted,
-            @RequestParam(required = false, defaultValue = "false") boolean inStock
+            @RequestParam(required = false, defaultValue = "false") boolean inStock,
+            @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") @RequestParam(required = false) LocalDateTime dateFrom,
+            @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") @RequestParam(required = false) LocalDateTime dateTo
     ) {
         return productService.getFilteredProducts(
                 PageRequest.of(page, size, direction, sortBy),
@@ -89,7 +100,9 @@ public class ProductController {
                 minPrice,
                 maxPrice,
                 isDeleted,
-                inStock
+                inStock,
+                dateFrom,
+                dateTo
         );
     }
 
@@ -106,16 +119,19 @@ public class ProductController {
         return productService.findAllByName(PageRequest.of(page, size, direction, sortBy), name, isDeleted);
     }
 
+//    @DeleteMapping("/deleteProductList")
+//    public ResponseEntity<Void> deleteProductList(@RequestBody @NotNull List<ProductDto> productDtoList) {
+//        return productService.deleteProductList(productDtoList);
+//    }
+
     @DeleteMapping("/deleteProductList")
-    public ResponseEntity<Void> deleteProductList(@RequestBody @NotNull List<ProductDto> productDtoList) {
+    public ResponseEntity<Void> deleteProductList(@RequestBody @NotNull List<ObjectNode> productDtoList) {
         return productService.deleteProductList(productDtoList);
     }
 
     @PostMapping("/addPhoto")
-    public ResponseEntity<String> addPhoto (@RequestParam String comment, @RequestParam MultipartFile multipartFile){
+    public ResponseEntity<String> addPhoto(@RequestParam String comment, @RequestParam MultipartFile multipartFile) {
         String s = comment + ", " + multipartFile.getName() + ", " + multipartFile.getOriginalFilename() + ", " + multipartFile.getSize();
-
-
 
         return ResponseEntity.status(HttpStatus.OK).body(s);
     }

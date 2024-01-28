@@ -23,7 +23,7 @@ public class ProductDto {
 
     private Long id;
     @Min(value = 0,message = "Price cannot be less than 0")
-    private double price;
+    private Double price;
     @NotBlank(message = "Name cannot be blank")
     private String name;
     @NotBlank(message = "Description cannot be blank")
@@ -32,21 +32,21 @@ public class ProductDto {
     @Min(value = 0, message = "ColorId  must be 1 or more")
     private Long colorId;
     @Min(value = 0,message = "Weight cannot be less than 0")
-    private double weight;
+    private Double weight;
     @Min(value = 0,message = "Height cannot be less than 0")
-    private double height;
+    private Double height;
     @Min(value = 0,message = "Length cannot be less than 0")
-    private double length;
+    private Double length;
     @Min(value = 0,message = "Width cannot be less than 0")
-    private double width;
+    private Double width;
     @Min(1)
     private Long categoryId;
     @Min(value = 0,message = "Quantity cannot be less than 0")
-    private int quantity;
-    private int warranty;
+    private Integer quantity;
+    private Integer warranty;
     @Min(value = 1,message = "MaterialId must be 1 or more")
     private Long materialId;
-    private boolean deleted;
+    private Boolean deleted;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     @JsonIgnore
     private LocalDateTime creationDate;

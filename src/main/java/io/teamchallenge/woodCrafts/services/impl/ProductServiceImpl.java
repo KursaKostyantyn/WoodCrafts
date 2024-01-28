@@ -1,6 +1,8 @@
 package io.teamchallenge.woodCrafts.services.impl;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.teamchallenge.woodCrafts.exception.EntityNotFoundException;
+import io.teamchallenge.woodCrafts.exception.UpdatesNumberFormatException;
 import io.teamchallenge.woodCrafts.mapper.ProductMapper;
 import io.teamchallenge.woodCrafts.models.Category;
 import io.teamchallenge.woodCrafts.models.Color;
@@ -29,8 +31,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -63,6 +67,7 @@ public class ProductServiceImpl implements ProductService {
         return ResponseEntity.status(HttpStatus.OK).body(ProductMapper.convertProductToProductDto(product));
     }
 
+    @Deprecated
     @Override
     public ResponseEntity<Void> deleteProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
@@ -73,19 +78,78 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<Void> updateProductById(ProductDto productDto, Long id) {
+    public ResponseEntity<Void> updateProductById(Map<String, String> updates, Long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
-        Category category = categoryRepository.findById(productDto.getCategoryId()).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", productDto.getCategoryId())));
-        Color color = colorRepository.findById(productDto.getColorId()).orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", productDto.getColorId())));
-        Material material = materialRepository.findById(productDto.getMaterialId()).orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", productDto.getMaterialId())));
-        ProductMapper.updateProductFromProductDto(productDto, product);
-        product.setCategory(category);
-        product.setColor(color);
-        product.setMaterial(material);
-        productRepository.save(product);
+        updates.forEach((key, value) -> {
+            try {
+                switch (key) {
+                    case "categoryId":
+                        Long categoryId = Long.valueOf(value);
+                        Category category = categoryRepository.findById(categoryId)
+                                .orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", id)));
+                        product.setCategory(category);
+                    case "colorId":
+                        Long colorId = Long.valueOf(value);
+                        Color color = colorRepository.findById(colorId)
+                                .orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", colorId)));
+                        product.setColor(color);
+                        break;
+                    case "materialId":
+                        Long materialId = Long.valueOf(value);
+                        Material material = materialRepository.findById(materialId)
+                                .orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", materialId)));
+                        product.setMaterial(material);
+                        break;
+                    case "price":
+                        System.out.println("price = " + value);
+                        Double price = Double.valueOf(value);
+                        product.setPrice(price);
+                        break;
+                    case "name":
+                        product.setName(value);
+                        break;
+                    case "description":
+                        product.setDescription(value);
+                        break;
+                    case "weight":
+                        Double weight = Double.valueOf(value);
+                        product.setWeight(weight);
+                        break;
+                    case "height":
+                        Double height = Double.valueOf(value);
+                        product.setHeight(height);
+                        break;
+                    case "length":
+                        Double length = Double.valueOf(value);
+                        product.setLength(length);
+                        break;
+                    case "width":
+                        Double width = Double.valueOf(value);
+                        product.setWidth(width);
+                        break;
+                    case "quantity":
+                        Integer quantity = Integer.valueOf(value);
+                        product.setQuantity(quantity);
+                        break;
+                    case "warranty":
+                        Integer warranty = Integer.valueOf(value);
+                        product.setWarranty(warranty);
+                        break;
+                    case "deleted":
+                        Boolean deleted = Boolean.valueOf(value);
+                        product.setDeleted(deleted);
+                        break;
+                }
+            } catch (NumberFormatException ex) {
+                throw new UpdatesNumberFormatException(String.format("Wrong format for field '%s'", key));
+            }
 
+
+        });
+        productRepository.save(product);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
 
     @Override
     public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest, boolean isDeleted) {
@@ -171,7 +235,9 @@ public class ProductServiceImpl implements ProductService {
                     int minPrice,
                     int maxPrice,
                     boolean isDeleted,
-                    boolean inStock
+                    boolean inStock,
+                    LocalDateTime dateFrom,
+                    LocalDateTime dateTo
             ) {
         List<Category> categories = new ArrayList<>();
         if (categoryIds != null && !categoryIds.isEmpty()) {
@@ -192,7 +258,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         Specification<Product> specification = ProductSpecificationsUtils
-                .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted, inStock);
+                .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted, inStock, dateFrom, dateTo);
         Page<Product> filteredProductsPage = productRepository.findAll(specification, pageRequest);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         List<ProductDto> collect = filteredProductsPage.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
@@ -204,7 +270,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<PageWrapperDto<ProductDto>> findAllByName(PageRequest pageRequest, String name, boolean isAvailable) {
+    public ResponseEntity<PageWrapperDto<ProductDto>> findAllByName(PageRequest pageRequest, String name,
+                                                                    boolean isAvailable) {
         Page<Product> productsByName = productRepository.findAllByNameContainingIgnoreCaseAndDeleted(pageRequest, name, isAvailable);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         pageWrapperDto.setData(productsByName.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList()));
@@ -214,16 +281,32 @@ public class ProductServiceImpl implements ProductService {
         return ResponseEntity.ok(pageWrapperDto);
     }
 
+    //    @Override
+//    public ResponseEntity<Void> deleteProductList(List<ProductDto> productDtoList) {
+//        List<Product> products = new ArrayList<>();
+//        productDtoList.forEach(productDto -> {
+//            Product product = productRepository.findById(productDto.getId()).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", productDto.getId())));
+//            product.setDeleted(true);
+//            products.add(product);
+//        });
+//        productRepository.saveAll(products);
+//
+//        return ResponseEntity.ok().build();
+//    }
     @Override
-    public ResponseEntity<Void> deleteProductList(List<ProductDto> productDtoList) {
+    public ResponseEntity<Void> deleteProductList(List<ObjectNode> productIds) {
         List<Product> products = new ArrayList<>();
-        productDtoList.forEach(productDto -> {
-            Product product = productRepository.findById(productDto.getId()).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", productDto.getId())));
-            product.setDeleted(true);
-            products.add(product);
-        });
+        for (ObjectNode node : productIds) {
+            if (node.has("id")) {
+                Long id = node.get("id").asLong();
+                Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
+                product.setDeleted(true);
+                products.add(product);
+            }
+        }
         productRepository.saveAll(products);
 
         return ResponseEntity.ok().build();
     }
+
 }

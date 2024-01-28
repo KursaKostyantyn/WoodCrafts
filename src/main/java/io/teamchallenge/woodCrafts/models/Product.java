@@ -40,7 +40,7 @@ public class Product {
 
     @Column(name = "price", nullable = false)
     @NotNull
-    private double price;
+    private Double price;
 
     @Column(name = "name", nullable = false)
     @NotNull
@@ -63,19 +63,19 @@ public class Product {
 
     @Column(name = "weight")
     @NotNull
-    private double weight;
+    private Double weight;
 
     @Column(name = "height")
     @NotNull
-    private double height;
+    private Double height;
 
     @Column(name = "length")
     @NotNull
-    private double length;
+    private Double length;
 
-    @Column(name = "wight")
+    @Column(name = "width")
     @NotNull
-    private double wight;
+    private Double width;
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
@@ -85,11 +85,11 @@ public class Product {
 
     @Column(name = "quantity")
     @NotNull
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "warranty")
     @NotNull
-    private int warranty;
+    private Integer warranty;
 
     @ManyToOne
     @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
@@ -105,8 +105,9 @@ public class Product {
     @UpdateTimestamp
     private LocalDateTime updateDate;
 
+
     @Column(name = "deleted")
-    private boolean deleted;
+    private Boolean deleted = false;
 
     @OneToMany(mappedBy = "product")
     @ToString.Exclude

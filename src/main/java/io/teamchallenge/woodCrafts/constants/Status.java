@@ -5,14 +5,11 @@ import io.teamchallenge.woodCrafts.exception.EntityNotFoundException;
 import java.util.Arrays;
 
 public enum Status {
-
-    NEW("Нове"),
-
+    PENDING("В обробці"),
     SENT("Відправлене"),
-
+    NEW("Нове"),
     RECEIVED("Отримане"),
-    CANCELLED("Скасоване"),
-    PENDING("В обробці");
+    CANCELLED("Скасоване");
 
     final String representationStatus;
 
