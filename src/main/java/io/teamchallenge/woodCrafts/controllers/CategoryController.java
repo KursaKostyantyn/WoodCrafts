@@ -7,8 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,33 +23,36 @@ import java.util.List;
 @RestController
 @Validated
 @AllArgsConstructor
-@RequestMapping("/categories")
+@RequestMapping()
 public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @PostMapping("/createCategory")
+    @PostMapping("/categories")
     public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
         return categoryService.createCategory(categoryDto);
     }
 
-    @GetMapping("/findCategoryById")
-    public ResponseEntity<CategoryDto> findCategoryById(@RequestParam @Min(1) Long id) {
+    @GetMapping("/categories/{id}")
+    public ResponseEntity<CategoryDto> findCategoryById(@PathVariable @Min(1) Long id) {
         return categoryService.findCategoryById(id);
     }
 
-    @DeleteMapping("/deleteCategoryById")
-    public ResponseEntity<Void> deleteCategoryById(@RequestParam @Min(1) Long id) {
+    @DeleteMapping("/categories/{id}")
+    public ResponseEntity<Void> deleteCategoryById(@PathVariable @Min(1) Long id) {
         return categoryService.deleteCategoryById(id);
     }
 
-    @PutMapping("/updateCategoryById")
-    public ResponseEntity<Void> updateCategoryById(@Valid @RequestBody CategoryDto categoryDto, @RequestParam @Min(1) Long id) {
+    @PatchMapping("/categories/{id}")
+    public ResponseEntity<Void> updateCategoryById(@Valid @RequestBody CategoryDto categoryDto,
+                                                   @PathVariable @Min(1) Long id) {
         return categoryService.updateCategoryById(categoryDto, id);
     }
 
-    @GetMapping("/getAllCategories")
-    public ResponseEntity<List<CategoryDto>> getAllCategories(@RequestParam(required = false, defaultValue = "false") boolean isDeleted) {
+    @GetMapping("/categories")
+    public ResponseEntity<List<CategoryDto>> getAllCategories(
+            @RequestParam(required = false, defaultValue = "false") boolean isDeleted
+    ) {
         return categoryService.getAllCategories(isDeleted);
     }
 }

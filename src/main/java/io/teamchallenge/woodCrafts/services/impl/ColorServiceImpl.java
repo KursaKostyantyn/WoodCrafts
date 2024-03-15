@@ -35,8 +35,8 @@ public class ColorServiceImpl implements ColorService {
     }
 
     @Override
-    public ResponseEntity<ColorDto> findColorById(Long id) {
-        Color color = colorRepository.findById(id).orElse(null);
+    public ResponseEntity<ColorDto> findColorById(Long colorId) {
+        Color color = colorRepository.findById(colorId).orElse(null);
         if (color == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -45,8 +45,8 @@ public class ColorServiceImpl implements ColorService {
     }
 
     @Override
-    public ResponseEntity<Void> deleteColorById(Long id) {
-        Color color = colorRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", id)));
+    public ResponseEntity<Void> deleteColorById(Long colorId) {
+        Color color = colorRepository.findById(colorId).orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", colorId)));
         color.setDeleted(true);
         colorRepository.save(color);
 

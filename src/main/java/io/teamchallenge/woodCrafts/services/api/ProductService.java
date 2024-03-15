@@ -7,9 +7,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 public interface ProductService {
 
@@ -19,14 +18,15 @@ public interface ProductService {
 
     ResponseEntity<Void> deleteProductById(Long id);
 
-//    ResponseEntity<Void> updateProductById(ProductDto productDto, Long id);
-    ResponseEntity<Void> updateProductById(Map<String,String> updates, Long id);
+    //    ResponseEntity<Void> updateProductById(ProductDto productDto, Long id);
+//    ResponseEntity<Void> updateProductById(Map<String,String> updates, Long id);
+    ResponseEntity<Void> updateProductById(ObjectNode updates, Long id);
 
     ResponseEntity<Void> importListOfProducts(MultipartFile productsFile);
 
-    ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest,boolean isDeleted);
+//    ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest,boolean isDeleted);
 
-    ResponseEntity<PageWrapperDto<ProductDto>> getFilteredProducts
+    ResponseEntity<PageWrapperDto<ProductDto>> getProducts
             (
                     PageRequest pageRequest,
                     List<Long> categoryIds,
@@ -37,12 +37,13 @@ public interface ProductService {
                     boolean isDeleted,
                     boolean inStock,
                     boolean notAvailable,
-                    LocalDateTime dateFrom,
-                    LocalDateTime dateTo
+                    String name,
+                    LocalDate dateFrom,
+                    LocalDate dateTo
             );
 
-    ResponseEntity<PageWrapperDto<ProductDto>> findAllByName(PageRequest pageRequest, String name,boolean isAvailable);
+    ResponseEntity<PageWrapperDto<ProductDto>> findAllProductsByName(PageRequest pageRequest, String name, boolean isAvailable);
 
-//    ResponseEntity<Void> deleteProductList(List<ProductDto> productDtoList);
+    //    ResponseEntity<Void> deleteProductList(List<ProductDto> productDtoList);
     ResponseEntity<Void> deleteProductList(List<ObjectNode> productDtoList);
 }

@@ -22,7 +22,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -106,16 +108,16 @@ public class OrderServiceImpl implements OrderService {
 //        return ResponseEntity.status(HttpStatus.OK).build();
 //    }
 
-    @Override
-    public ResponseEntity<PageWrapperDto<OrderDto>> getAllOrders(PageRequest of, boolean isDeleted) {
-        Page<Order> orderPage = orderRepository.findAllByDeleted(isDeleted, of);
-        PageWrapperDto<OrderDto> pageWrapperDto = new PageWrapperDto<>();
-        pageWrapperDto.setData(orderPage.getContent().stream().map(OrderMapper::convertOrderToOrderDto).collect(Collectors.toList()));
-        pageWrapperDto.setTotalPages(orderPage.getTotalPages());
-        pageWrapperDto.setTotalItems(orderPage.getTotalElements());
-
-        return ResponseEntity.status(HttpStatus.OK).body(pageWrapperDto);
-    }
+//    @Override
+//    public ResponseEntity<PageWrapperDto<OrderDto>> getAllOrders(PageRequest of, boolean isDeleted) {
+//        Page<Order> orderPage = orderRepository.findAllByDeleted(isDeleted, of);
+//        PageWrapperDto<OrderDto> pageWrapperDto = new PageWrapperDto<>();
+//        pageWrapperDto.setData(orderPage.getContent().stream().map(OrderMapper::convertOrderToOrderDto).collect(Collectors.toList()));
+//        pageWrapperDto.setTotalPages(orderPage.getTotalPages());
+//        pageWrapperDto.setTotalItems(orderPage.getTotalElements());
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(pageWrapperDto);
+//    }
 
 //    @Override
 //    public ResponseEntity<Void> deleteOrders(List<OrderDto> orderIds) {
@@ -148,11 +150,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ResponseEntity<PageWrapperDto<OrderDto>> getFilteredOrders(
+    public ResponseEntity<PageWrapperDto<OrderDto>> getOrders(
             PageRequest pageRequest,
             boolean isDeleted,
-            LocalDateTime fromCreationDate,
-            LocalDateTime toCreationDate,
+            LocalDate fromCreationDate,
+            LocalDate toCreationDate,
             double minTotal,
             double maxTotal,
             String statusName
@@ -161,9 +163,11 @@ public class OrderServiceImpl implements OrderService {
         if (statusName != null) {
             status = Status.getStatusByRepresentationStatus(statusName);
         }
+        LocalDateTime fromDate = fromCreationDate.atStartOfDay();
+        LocalDateTime toDate = LocalDateTime.of(toCreationDate, LocalTime.MAX);
 
         Specification<Order> specification = OrderSpecificationUtils
-                .filterOrders(isDeleted, fromCreationDate, toCreationDate, minTotal, maxTotal, status);
+                .filterOrders(isDeleted, fromDate, toDate, minTotal, maxTotal, status);
         Page<Order> filteredOrderPage = orderRepository.findAll(specification, pageRequest);
         PageWrapperDto<OrderDto> pageWrapperDto = new PageWrapperDto<>();
         List<OrderDto> collect = filteredOrderPage.getContent().stream().map(OrderMapper::convertOrderToOrderDto).collect(Collectors.toList());

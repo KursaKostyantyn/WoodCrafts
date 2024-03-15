@@ -13,8 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,24 +25,23 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/products")
+@RequestMapping()
 public class ProductController {
 
     private final ProductService productService;
 
-    @PostMapping("/createProduct")
+    @PostMapping("/products")
     public ResponseEntity<Void> createProduct(@Valid @RequestBody ProductDto productDto) {
         return productService.createProduct(productDto);
     }
 
-    @GetMapping("/findProductById")
-    public ResponseEntity<ProductDto> findProductById(@RequestParam @Min(1) Long id) {
+    @GetMapping("/products/byId/{id}")
+    public ResponseEntity<ProductDto> findProductById(@PathVariable @Min(1) Long id) {
         return productService.getProductById(id);
     }
 
@@ -55,29 +55,35 @@ public class ProductController {
 //        return productService.updateProductById(productDto, id);
 //    }
 
-    @PutMapping("/updateProductById")
-    public ResponseEntity<Void> updateProductById(@RequestBody Map<String, String> updates, @RequestParam @Min(1) Long id) {
+    /*    @PatchMapping("/products/{id}")
+        public ResponseEntity<Void> updateProductById(@RequestBody Map<String, String> updates,
+                                                      @PathVariable @Min(1) Long id) {
+            return productService.updateProductById(updates, id);
+        }*/
+    @PatchMapping("/products/{id}")
+    public ResponseEntity<Void> updateProductById(@RequestBody ObjectNode updates,
+                                                  @PathVariable @Min(1) Long id) {
         return productService.updateProductById(updates, id);
     }
 
-    @GetMapping("/getAllProducts")
-    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "7") int size,
-            @RequestParam(required = false, defaultValue = "id") String sortBy,
-            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction,
-            @RequestParam(required = false, defaultValue = "false") boolean isDeleted
-    ) {
-        return productService.findAllProducts(PageRequest.of(page, size, direction, sortBy), isDeleted);
-    }
+//    @GetMapping("/getAllProducts")
+//    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(
+//            @RequestParam(required = false, defaultValue = "0") int page,
+//            @RequestParam(required = false, defaultValue = "7") int size,
+//            @RequestParam(required = false, defaultValue = "id") String sortBy,
+//            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction,
+//            @RequestParam(required = false, defaultValue = "false") boolean isDeleted
+//    ) {
+//        return productService.findAllProducts(PageRequest.of(page, size, direction, sortBy), isDeleted);
+//    }
 
-    @PostMapping("/importListOfProducts")
-    public ResponseEntity<Void> importListOfProducts(@RequestParam MultipartFile productsFile) {
-        return productService.importListOfProducts(productsFile);
-    }
+//    @PostMapping("/products/importListOfProducts")
+//    public ResponseEntity<Void> importListOfProducts(@RequestParam MultipartFile productsFile) {
+//        return productService.importListOfProducts(productsFile);
+//    }
 
-    @GetMapping("/getFilteredProducts")
-    public ResponseEntity<PageWrapperDto<ProductDto>> getFilteredProducts(
+    @GetMapping("/products")
+    public ResponseEntity<PageWrapperDto<ProductDto>> getProducts(
             @RequestParam(required = false) List<Long> categoryIds,
             @RequestParam(required = false) List<Long> colorIds,
             @RequestParam(required = false) List<Long> materialIds,
@@ -90,10 +96,11 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "false") boolean isDeleted,
             @RequestParam(required = false, defaultValue = "true") boolean inStock,
             @RequestParam(required = false, defaultValue = "true") boolean notAvailable,
-            @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") @RequestParam(required = false) LocalDateTime dateFrom,
-            @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm") @RequestParam(required = false) LocalDateTime dateTo
+            @RequestParam(required = false) String name,
+            @DateTimeFormat(pattern = "dd.MM.yyyy") @RequestParam(required = false, defaultValue = "01.01.2024") LocalDate dateFrom,
+            @DateTimeFormat(pattern = "dd.MM.yyyy") @RequestParam(required = false, defaultValue = "01.01.3000") LocalDate dateTo
     ) {
-        return productService.getFilteredProducts(
+        return productService.getProducts(
                 PageRequest.of(page, size, direction, sortBy),
                 categoryIds,
                 colorIds,
@@ -103,22 +110,23 @@ public class ProductController {
                 isDeleted,
                 inStock,
                 notAvailable,
+                name,
                 dateFrom,
                 dateTo
         );
     }
 
-    @GetMapping("/getProductByName")
-    public ResponseEntity<PageWrapperDto<ProductDto>> findAllByName
+    @GetMapping("/products/byName/{name}")
+    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProductsByName
             (
                     @RequestParam(required = false, defaultValue = "0") int page,
                     @RequestParam(required = false, defaultValue = "7") int size,
                     @RequestParam(required = false, defaultValue = "id") String sortBy,
                     @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction,
-                    @RequestParam String name,
+                    @PathVariable String name,
                     @RequestParam(required = false, defaultValue = "false") boolean isDeleted
             ) {
-        return productService.findAllByName(PageRequest.of(page, size, direction, sortBy), name, isDeleted);
+        return productService.findAllProductsByName(PageRequest.of(page, size, direction, sortBy), name, isDeleted);
     }
 
 //    @DeleteMapping("/deleteProductList")
@@ -126,7 +134,7 @@ public class ProductController {
 //        return productService.deleteProductList(productDtoList);
 //    }
 
-    @DeleteMapping("/deleteProductList")
+    @DeleteMapping("/products")
     public ResponseEntity<Void> deleteProductList(@RequestBody @NotNull List<ObjectNode> productDtoList) {
         return productService.deleteProductList(productDtoList);
     }

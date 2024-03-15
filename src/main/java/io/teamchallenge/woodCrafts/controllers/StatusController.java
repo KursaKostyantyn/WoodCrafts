@@ -11,11 +11,11 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/statuses")
+@RequestMapping()
 public class StatusController {
 
     private final StatusService statusService;
-    @GetMapping("/getStatusList")
+    @GetMapping("/statuses")
     public ResponseEntity<List<String>> getStatusList() {
         return statusService.getStatusList();
     }

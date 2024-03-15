@@ -46,7 +46,7 @@ public class AutoFillingTablesUtil {
             saveMaterials();
             saveUsers();
             saveProducts(numberOfProducts);
-            saveOrders(20);
+            saveOrders(200);
 
         }
     }
@@ -57,7 +57,6 @@ public class AutoFillingTablesUtil {
         for (int i = 0; i < numberOfOrders; i++) {
             Order order = new Order();
             User user = users.get((int) Math.floor(Math.random() * users.size()));
-            System.out.println("-----------------" + user);
             order.setStatus(getStatus());
             order.setAddress(getAdresses());
             order.setDeleted(false);
@@ -68,10 +67,6 @@ public class AutoFillingTablesUtil {
                     .sum();
             order.setTotalPrice(Math.round(total * 100.0) / 100.0);
             order.setUser(user);
-            System.out.println("-----------------" + user);
-            if (user.getOrders()==null){
-                System.out.println("orders == null");
-            }
             user.getOrders().add(order);
             orderRepository.save(order);
         }
@@ -85,7 +80,7 @@ public class AutoFillingTablesUtil {
         statuses.add(Status.PENDING);
         statuses.add(Status.RECEIVED);
         statuses.add(Status.SENT);
-        int i = (int) Math.round(Math.random() * (statuses.size() - 1));
+        int i = (int) Math.floor(Math.random() * statuses.size());
 
         return statuses.get(i);
     }
@@ -96,7 +91,7 @@ public class AutoFillingTablesUtil {
         addresses.add("Львів");
         addresses.add("Одеса");
         addresses.add("Харків");
-        int i = (int) Math.round(Math.random() * (addresses.size() - 1));
+        int i = (int) Math.floor(Math.random() * addresses.size());
 
         return addresses.get(i);
     }
@@ -105,11 +100,12 @@ public class AutoFillingTablesUtil {
     private List<ProductLine> getListOfProductLine(Order order) {
         List<ProductLine> productLines = new ArrayList<>();
         for (int i = 1; i < (2 + (int) Math.round(Math.random() * 20)); i++) {
-            long id = 1 + Math.round(Math.random() * 49);
+            long id = 1 + (long) Math.floor(Math.random() * productRepository.count());
             ProductLine productLine = new ProductLine();
             Product product = productRepository.findById(id).orElse(null);
             productLine.setProduct(product);
             productLine.setQuantity((int) Math.round(Math.random() * 50));
+            assert product != null;
             productLine.setTotalProductLineAmount(productLine.getQuantity() * product.getPrice());
             productLine.setOrder(order);
             productLines.add(productLine);
@@ -202,19 +198,25 @@ public class AutoFillingTablesUtil {
     }
 
     private void saveProducts(int numberOfProducts) {
-        for (long i = 1; i <= 12; i++) {
+        for (long i = 1; i <= 20; i++) {
             for (int j = 0; j < numberOfProducts; j++) {
-                Product product = getNewProduct(i);
+                Product product = getNewProduct();
                 productRepository.save(product);
             }
         }
     }
 
-    private Product getNewProduct(long i) {
+    private Product getNewProduct() {
         Product product = new Product();
-        Category category = categoryRepository.findById(i).orElse(null);
-        Color color = colorRepository.findById(i).orElse(null);
-        Material material = materialRepository.findById(i).orElse(null);
+        Category category = categoryRepository
+                .findById((long) (1 + Math.floor(Math.random() * categoryRepository.count())))
+                .orElse(null);
+        Color color = colorRepository
+                .findById((long) (1 + Math.floor(Math.random() * colorRepository.count())))
+                .orElse(null);
+        Material material = materialRepository
+                .findById((long) (1 + Math.floor(Math.random() * materialRepository.count())))
+                .orElse(null);
 
         product.setCategory(category);
         product.setColor(color);

@@ -23,6 +23,7 @@ public class ProductSpecificationsUtils {
                     boolean isDeleted,
                     boolean inStock,
                     boolean notAvailable,
+                    String name,
                     LocalDateTime dateFrom,
                     LocalDateTime dateTo
             ) {
@@ -41,14 +42,17 @@ public class ProductSpecificationsUtils {
             if (inStock && !notAvailable) {
                 predicates.add(criteriaBuilder.greaterThan(root.get("quantity"), 0));
             }
-            if (!inStock && notAvailable){
-                predicates.add(criteriaBuilder.equal(root.get("quantity"),0));
+            if (!inStock && notAvailable) {
+                predicates.add(criteriaBuilder.equal(root.get("quantity"), 0));
             }
             if (dateFrom != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("creationDate"), dateFrom));
             }
             if (dateTo != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("creationDate"), dateTo));
+            }
+            if (name != null) {
+                predicates.add(criteriaBuilder.like(root.get("name"), "%" + name + "%"));
             }
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice));
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice));

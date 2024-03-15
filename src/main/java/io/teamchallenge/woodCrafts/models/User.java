@@ -13,7 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -45,7 +45,7 @@ public class User {
     private String address;
 
     @CreationTimestamp
-    private LocalDateTime registrationDate;
+    private LocalDate registrationDate;
 
     @Column(name = "password")
     private String password;

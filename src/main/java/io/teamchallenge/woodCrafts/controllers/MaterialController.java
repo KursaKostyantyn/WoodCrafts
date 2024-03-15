@@ -6,8 +6,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,34 +18,35 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/materials")
+@RequestMapping()
 @AllArgsConstructor
 public class MaterialController {
 
     private final MaterialService materialService;
 
-    @PostMapping("/createMaterial")
+    @PostMapping("/materials")
     public ResponseEntity<Void> createMaterial(@Valid @RequestBody MaterialDto materialDto) {
         return materialService.createMaterial(materialDto);
     }
 
-    @GetMapping("/findMaterialById")
-    public ResponseEntity<MaterialDto> findMaterialById(@RequestParam Long id) {
+    @GetMapping("/materials/{id}")
+    public ResponseEntity<MaterialDto> findMaterialById(@PathVariable Long id) {
         return materialService.findMaterialById(id);
     }
 
-    @DeleteMapping("/deleteMaterialById")
-    public ResponseEntity<Void> deleteMaterialById(Long id){
+    @DeleteMapping("/materials/{id}")
+    public ResponseEntity<Void> deleteMaterialById(@PathVariable Long id) {
         return materialService.deleteMaterialById(id);
     }
 
-    @PutMapping("/updateMaterialById")
-    public ResponseEntity<Void> updateMaterialById(@Valid @RequestBody MaterialDto materialDto, @RequestParam Long id){
-        return materialService.updateMaterialById(materialDto,id);
+    @PatchMapping("/materials/{id}")
+    public ResponseEntity<Void> updateMaterialById(@Valid @RequestBody MaterialDto materialDto,
+                                                   @PathVariable Long id) {
+        return materialService.updateMaterialById(materialDto, id);
     }
 
-    @GetMapping("/getAllMaterials")
-    public ResponseEntity<List<MaterialDto>> findAllMaterials(boolean isDeleted){
+    @GetMapping("/materials")
+    public ResponseEntity<List<MaterialDto>> findAllMaterials(@RequestParam(required = false, defaultValue = "false") boolean isDeleted) {
         return materialService.findAllMaterials(isDeleted);
     }
 }

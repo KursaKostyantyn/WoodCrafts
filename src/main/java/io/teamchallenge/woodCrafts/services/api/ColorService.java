@@ -9,9 +9,9 @@ public interface ColorService {
 
     ResponseEntity<Void> createColor(ColorDto colorDto);
 
-    ResponseEntity<ColorDto> findColorById(Long id);
+    ResponseEntity<ColorDto> findColorById(Long colorId);
 
-    ResponseEntity<Void> deleteColorById(Long id);
+    ResponseEntity<Void> deleteColorById(Long colorId);
 
     ResponseEntity<Void> updateColorById (ColorDto colorDto, Long id);
 

@@ -6,7 +6,7 @@ import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderService {
@@ -16,15 +16,12 @@ public interface OrderService {
     ResponseEntity<OrderDto> getOrderById(Long id);
 
     ResponseEntity<Void> updateOrderById(Long id, OrderDto orderDto);
-//    ResponseEntity<Void> updateOrderById(Long id, Map<String,String> updates);
 
-    ResponseEntity<PageWrapperDto<OrderDto>> getAllOrders(PageRequest of, boolean isDeleted);
-
-    ResponseEntity<PageWrapperDto<OrderDto>> getFilteredOrders(
+    ResponseEntity<PageWrapperDto<OrderDto>> getOrders(
             PageRequest pageRequest,
             boolean isDeleted,
-            LocalDateTime fromCreationDate,
-            LocalDateTime toCreationDate,
+            LocalDate fromCreationDate,
+            LocalDate toCreationDate,
             double minTotal,
             double maxTotal,
             String statusName

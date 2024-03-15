@@ -1,8 +1,8 @@
 package io.teamchallenge.woodCrafts.services.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.teamchallenge.woodCrafts.exception.EntityNotFoundException;
-import io.teamchallenge.woodCrafts.exception.UpdatesNumberFormatException;
 import io.teamchallenge.woodCrafts.mapper.ProductMapper;
 import io.teamchallenge.woodCrafts.models.Category;
 import io.teamchallenge.woodCrafts.models.Color;
@@ -15,6 +15,7 @@ import io.teamchallenge.woodCrafts.repository.ColorRepository;
 import io.teamchallenge.woodCrafts.repository.MaterialRepository;
 import io.teamchallenge.woodCrafts.repository.ProductRepository;
 import io.teamchallenge.woodCrafts.services.api.ProductService;
+import io.teamchallenge.woodCrafts.utils.JacksonUtils;
 import io.teamchallenge.woodCrafts.utils.ProductSpecificationsUtils;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -31,8 +32,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -78,91 +82,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<Void> updateProductById(Map<String, String> updates, Long id) {
+    public ResponseEntity<Void> updateProductById(ObjectNode updates, Long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
-        updates.forEach((key, value) -> {
-            try {
-                switch (key) {
-                    case "categoryId":
-                        Long categoryId = Long.valueOf(value);
-                        Category category = categoryRepository.findById(categoryId)
-                                .orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", id)));
-                        product.setCategory(category);
-                    case "colorId":
-                        Long colorId = Long.valueOf(value);
-                        Color color = colorRepository.findById(colorId)
-                                .orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", colorId)));
-                        product.setColor(color);
-                        break;
-                    case "materialId":
-                        Long materialId = Long.valueOf(value);
-                        Material material = materialRepository.findById(materialId)
-                                .orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", materialId)));
-                        product.setMaterial(material);
-                        break;
-                    case "price":
-                        System.out.println("price = " + value);
-                        Double price = Double.valueOf(value);
-                        product.setPrice(price);
-                        break;
-                    case "name":
-                        product.setName(value);
-                        break;
-                    case "description":
-                        product.setDescription(value);
-                        break;
-                    case "weight":
-                        Double weight = Double.valueOf(value);
-                        product.setWeight(weight);
-                        break;
-                    case "height":
-                        Double height = Double.valueOf(value);
-                        product.setHeight(height);
-                        break;
-                    case "length":
-                        Double length = Double.valueOf(value);
-                        product.setLength(length);
-                        break;
-                    case "width":
-                        Double width = Double.valueOf(value);
-                        product.setWidth(width);
-                        break;
-                    case "quantity":
-                        Integer quantity = Integer.valueOf(value);
-                        product.setQuantity(quantity);
-                        break;
-                    case "warranty":
-                        Integer warranty = Integer.valueOf(value);
-                        product.setWarranty(warranty);
-                        break;
-                    case "deleted":
-                        Boolean deleted = Boolean.valueOf(value);
-                        product.setDeleted(deleted);
-                        break;
-                }
-            } catch (NumberFormatException ex) {
-                throw new UpdatesNumberFormatException(String.format("Wrong format for field '%s'", key));
-            }
-
-
-        });
+        Iterator<Map.Entry<String, JsonNode>> fields = updates.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            updateField(field, product);
+        }
         productRepository.save(product);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
+        return ResponseEntity.status(HttpStatus.OK).
 
-
-    @Override
-    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest, boolean isDeleted) {
-        Page<Product> page = productRepository.findAllByDeleted(isDeleted, pageRequest);
-        List<ProductDto> products = page.getContent().stream()
-                .map(ProductMapper::convertProductToProductDto)
-                .collect(Collectors.toList());
-        PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
-        pageWrapperDto.setData(products);
-        pageWrapperDto.setTotalPages(page.getTotalPages());
-        pageWrapperDto.setTotalItems(page.getTotalElements());
-
-        return ResponseEntity.ok(pageWrapperDto);
+                build();
     }
 
     @Override
@@ -226,7 +156,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<PageWrapperDto<ProductDto>> getFilteredProducts
+    public ResponseEntity<PageWrapperDto<ProductDto>> getProducts
             (
                     PageRequest pageRequest,
                     List<Long> categoryIds,
@@ -237,8 +167,9 @@ public class ProductServiceImpl implements ProductService {
                     boolean isDeleted,
                     boolean inStock,
                     boolean notAvailable,
-                    LocalDateTime dateFrom,
-                    LocalDateTime dateTo
+                    String name,
+                    LocalDate dateFrom,
+                    LocalDate dateTo
             ) {
         List<Category> categories = new ArrayList<>();
         if (categoryIds != null && !categoryIds.isEmpty()) {
@@ -258,8 +189,10 @@ public class ProductServiceImpl implements ProductService {
                 materials.add(materialRepository.findById(materialId).orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", materialId))));
             }
         }
+        LocalDateTime fromDate = dateFrom.atStartOfDay();
+        LocalDateTime toDate = LocalDateTime.of(dateTo, LocalTime.MAX);
         Specification<Product> specification = ProductSpecificationsUtils
-                .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted, inStock, notAvailable, dateFrom, dateTo);
+                .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted, inStock, notAvailable, name, fromDate, toDate);
         Page<Product> filteredProductsPage = productRepository.findAll(specification, pageRequest);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         List<ProductDto> collect = filteredProductsPage.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
@@ -271,8 +204,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<PageWrapperDto<ProductDto>> findAllByName(PageRequest pageRequest, String name,
-                                                                    boolean isAvailable) {
+    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProductsByName(PageRequest pageRequest, String name,
+                                                                            boolean isAvailable) {
         Page<Product> productsByName = productRepository.findAllByNameContainingIgnoreCaseAndDeleted(pageRequest, name, isAvailable);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         pageWrapperDto.setData(productsByName.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList()));
@@ -282,18 +215,6 @@ public class ProductServiceImpl implements ProductService {
         return ResponseEntity.ok(pageWrapperDto);
     }
 
-    //    @Override
-//    public ResponseEntity<Void> deleteProductList(List<ProductDto> productDtoList) {
-//        List<Product> products = new ArrayList<>();
-//        productDtoList.forEach(productDto -> {
-//            Product product = productRepository.findById(productDto.getId()).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", productDto.getId())));
-//            product.setDeleted(true);
-//            products.add(product);
-//        });
-//        productRepository.saveAll(products);
-//
-//        return ResponseEntity.ok().build();
-//    }
     @Override
     public ResponseEntity<Void> deleteProductList(List<ObjectNode> productIds) {
         List<Product> products = new ArrayList<>();
@@ -308,6 +229,72 @@ public class ProductServiceImpl implements ProductService {
         productRepository.saveAll(products);
 
         return ResponseEntity.ok().build();
+    }
+
+    private void updateField(Map.Entry<String, JsonNode> field, Product product) {
+        String key = field.getKey();
+        JsonNode value = field.getValue();
+        switch (key) {
+            case "categoryId":
+                Long categoryId = value.asLong();
+                Category category = categoryRepository.findById(categoryId)
+                        .orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", categoryId)));
+                product.setCategory(category);
+            case "colorId":
+                Long colorId = value.asLong();
+                Color color = colorRepository.findById(colorId)
+                        .orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", colorId)));
+                product.setColor(color);
+                break;
+            case "materialId":
+                Long materialId = value.asLong();
+                Material material = materialRepository.findById(materialId)
+                        .orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", materialId)));
+                product.setMaterial(material);
+                break;
+            case "price":
+                Double price = value.asDouble();
+                product.setPrice(price);
+                break;
+            case "name":
+                product.setName(value.asText());
+                break;
+            case "description":
+                product.setDescription(value.asText());
+                break;
+            case "weight":
+                Double weight = value.asDouble();
+                product.setWeight(weight);
+                break;
+            case "height":
+                Double height = value.asDouble();
+                product.setHeight(height);
+                break;
+            case "length":
+                Double length = value.asDouble();
+                product.setLength(length);
+                break;
+            case "width":
+                Double width = value.asDouble();
+                product.setWidth(width);
+                break;
+            case "quantity":
+                Integer quantity = value.intValue();
+                product.setQuantity(quantity);
+                break;
+            case "warranty":
+                Integer warranty = value.asInt();
+                product.setWarranty(warranty);
+                break;
+            case "deleted":
+                Boolean deleted = value.asBoolean();
+                product.setDeleted(deleted);
+                break;
+            case "photos":
+                List<String> list = JacksonUtils.toStringList(value);
+                product.setPhotos(list);
+                break;
+        }
     }
 
 }

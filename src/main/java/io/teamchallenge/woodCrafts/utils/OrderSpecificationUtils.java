@@ -30,9 +30,8 @@ public class OrderSpecificationUtils {
             if (status != null) {
                 predicates.add(criteriaBuilder.equal(root.get("status"), status));
             }
-            if (isDeleted){
-                predicates.add(criteriaBuilder.equal(root.get("deleted"), true));
-            }
+
+            predicates.add(criteriaBuilder.equal(root.get("deleted"), isDeleted));
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("totalPrice"), minTotal));
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("totalPrice"), maxTotal));
 

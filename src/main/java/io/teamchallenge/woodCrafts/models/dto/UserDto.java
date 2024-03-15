@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class UserDto {
     private String phone;
     private String address;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
-    private LocalDateTime registrationDate;
+    private LocalDate registrationDate;
     private String password;
     private List<OrderDto> orders;
 }
