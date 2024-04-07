@@ -46,7 +46,7 @@ public class Product {
     @NotNull
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 1200)
     @NotNull
     private String description;
 

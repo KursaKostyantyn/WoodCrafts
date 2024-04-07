@@ -25,6 +25,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -65,10 +67,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<ProductDto> getProductById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
-
-        return ResponseEntity.status(HttpStatus.OK).body(ProductMapper.convertProductToProductDto(product));
+    public ResponseEntity<List<ProductDto>> getProductById(List<Long> ids, String sortBy, Sort.Direction direction) {
+        List<Product> products = new ArrayList<>();
+        ids.forEach(id -> {
+            Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", ids)));
+            products.add(product);
+        });
+        Comparator<ProductDto> comparator = createComparator(sortBy, direction);
+        List<ProductDto> productDtos = products.stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
+        productDtos.sort(comparator);
+        return ResponseEntity.status(HttpStatus.OK).body(productDtos);
     }
 
     @Deprecated
@@ -90,9 +98,7 @@ public class ProductServiceImpl implements ProductService {
             updateField(field, product);
         }
         productRepository.save(product);
-        return ResponseEntity.status(HttpStatus.OK).
-
-                build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @Override
@@ -295,6 +301,44 @@ public class ProductServiceImpl implements ProductService {
                 product.setPhotos(list);
                 break;
         }
+    }
+
+    private Comparator<ProductDto> createComparator(String sortBy, Sort.Direction direction) {
+        Comparator<ProductDto> comparator = Comparator.comparing(ProductDto::getId);
+
+        if ("price".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getPrice);
+        } else if ("name".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getName);
+        } else if ("description".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getDescription);
+        } else if ("color".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getColorId);
+        } else if ("weight".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getWeight);
+        } else if ("height".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getHeight);
+        } else if ("length".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getLength);
+        } else if ("width".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getWidth);
+        } else if ("category".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getCategoryId);
+        } else if ("quantity".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getQuantity);
+        } else if ("warranty".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getWarranty);
+        } else if ("material".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getMaterialId);
+        } else if ("creationDate".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getCreationDate);
+        } else if ("updateDate".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getUpdateDate);
+        }
+        if (direction.isDescending()) {
+            comparator = comparator.reversed();
+        }
+        return comparator;
     }
 
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,7 +15,7 @@ public interface ProductService {
 
     ResponseEntity<Void> createProduct(ProductDto productDto);
 
-    ResponseEntity<ProductDto> getProductById(Long id);
+    ResponseEntity<List<ProductDto>> getProductById(List<Long> ids, String sortBy, Sort.Direction direction);
 
     ResponseEntity<Void> deleteProductById(Long id);
 

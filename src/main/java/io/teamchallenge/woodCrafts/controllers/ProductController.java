@@ -40,47 +40,20 @@ public class ProductController {
         return productService.createProduct(productDto);
     }
 
-    @GetMapping("/products/byId/{id}")
-    public ResponseEntity<ProductDto> findProductById(@PathVariable @Min(1) Long id) {
-        return productService.getProductById(id);
+    @GetMapping("/products/byIds")
+    public ResponseEntity<List<ProductDto>> findProductById(
+            @RequestParam @Min(1) List<Long> ids,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "ASC") Sort.Direction direction
+    ) {
+        return productService.getProductById(ids, sortBy, direction);
     }
 
-//    @DeleteMapping()
-//    public ResponseEntity<Void> deleteProductById(@RequestParam @Min(1) Long id) {
-//        return productService.deleteProductById(id);
-//    }
-
-//    @PutMapping("/updateProductById")
-//    public ResponseEntity<Void> updateProductById(@Valid @RequestBody ProductDto productDto,@RequestParam @Min(1) Long id) {
-//        return productService.updateProductById(productDto, id);
-//    }
-
-    /*    @PatchMapping("/products/{id}")
-        public ResponseEntity<Void> updateProductById(@RequestBody Map<String, String> updates,
-                                                      @PathVariable @Min(1) Long id) {
-            return productService.updateProductById(updates, id);
-        }*/
     @PatchMapping("/products/{id}")
     public ResponseEntity<Void> updateProductById(@RequestBody ObjectNode updates,
                                                   @PathVariable @Min(1) Long id) {
         return productService.updateProductById(updates, id);
     }
-
-//    @GetMapping("/getAllProducts")
-//    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(
-//            @RequestParam(required = false, defaultValue = "0") int page,
-//            @RequestParam(required = false, defaultValue = "7") int size,
-//            @RequestParam(required = false, defaultValue = "id") String sortBy,
-//            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction,
-//            @RequestParam(required = false, defaultValue = "false") boolean isDeleted
-//    ) {
-//        return productService.findAllProducts(PageRequest.of(page, size, direction, sortBy), isDeleted);
-//    }
-
-//    @PostMapping("/products/importListOfProducts")
-//    public ResponseEntity<Void> importListOfProducts(@RequestParam MultipartFile productsFile) {
-//        return productService.importListOfProducts(productsFile);
-//    }
 
     @GetMapping("/products")
     public ResponseEntity<PageWrapperDto<ProductDto>> getProducts(
@@ -128,11 +101,6 @@ public class ProductController {
             ) {
         return productService.findAllProductsByName(PageRequest.of(page, size, direction, sortBy), name, isDeleted);
     }
-
-//    @DeleteMapping("/deleteProductList")
-//    public ResponseEntity<Void> deleteProductList(@RequestBody @NotNull List<ProductDto> productDtoList) {
-//        return productService.deleteProductList(productDtoList);
-//    }
 
     @DeleteMapping("/products")
     public ResponseEntity<Void> deleteProductList(@RequestBody @NotNull List<ObjectNode> productDtoList) {

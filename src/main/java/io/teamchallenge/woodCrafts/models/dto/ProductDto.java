@@ -22,7 +22,7 @@ import java.util.List;
 public class ProductDto {
 
     private Long id;
-    @Min(value = 0,message = "Price cannot be less than 0")
+    @Min(value = 0, message = "Price cannot be less than 0")
     private Double price;
     @NotBlank(message = "Name cannot be blank")
     private String name;
@@ -31,20 +31,20 @@ public class ProductDto {
     private List<String> photos;
     @Min(value = 0, message = "ColorId  must be 1 or more")
     private Long colorId;
-    @Min(value = 0,message = "Weight cannot be less than 0")
+    @Min(value = 0, message = "Weight cannot be less than 0")
     private Double weight;
-    @Min(value = 0,message = "Height cannot be less than 0")
+    @Min(value = 0, message = "Height cannot be less than 0")
     private Double height;
-    @Min(value = 0,message = "Length cannot be less than 0")
+    @Min(value = 0, message = "Length cannot be less than 0")
     private Double length;
-    @Min(value = 0,message = "Width cannot be less than 0")
+    @Min(value = 0, message = "Width cannot be less than 0")
     private Double width;
     @Min(1)
     private Long categoryId;
-    @Min(value = 0,message = "Quantity cannot be less than 0")
+    @Min(value = 0, message = "Quantity cannot be less than 0")
     private Integer quantity;
     private Integer warranty;
-    @Min(value = 1,message = "MaterialId must be 1 or more")
+    @Min(value = 1, message = "MaterialId must be 1 or more")
     private Long materialId;
     private Boolean deleted;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
