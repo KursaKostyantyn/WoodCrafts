@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
 public class OrderDto {
     private Long id;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm")
-    private LocalDateTime orderDate;
+    private LocalDateTime creationDate;
     private String address;
     @NotBlank(message = "Status cannot be blank")
     private String status;
@@ -28,4 +29,9 @@ public class OrderDto {
     @NotBlank(message = "Total price cannot be blank")
     private Double totalPrice;
     private UserDto userDto;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm")
+    private LocalDateTime updatedAt;
+    private boolean paidStatus;
+    private BigDecimal totalPayment;
+    private String comment;
 }

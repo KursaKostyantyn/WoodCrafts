@@ -52,7 +52,7 @@ public class OrderController {
             @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "ASC") Sort.Direction direction,
             @RequestParam(required = false, defaultValue = "false") boolean isDeleted,
-            @DateTimeFormat(pattern = "dd.MM.yyyy") @RequestParam(required = false, defaultValue = "01.01.2023") LocalDate fromCreationDate,
+            @DateTimeFormat(pattern = "dd.MM.yyyy") @RequestParam(required = false, defaultValue = "01.01.2024") LocalDate fromCreationDate,
             @DateTimeFormat(pattern = "dd.MM.yyyy") @RequestParam(required = false, defaultValue = "01.01.3000") LocalDate toCreationDate,
             @RequestParam(required = false, defaultValue = "0") double minTotal,
             @RequestParam(required = false, defaultValue = "100000000") double maxTotal,

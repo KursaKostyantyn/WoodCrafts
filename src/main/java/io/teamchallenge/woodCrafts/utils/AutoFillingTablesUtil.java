@@ -20,6 +20,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,22 +57,47 @@ public class AutoFillingTablesUtil {
 
     private void saveOrders(int numberOfOrders) {
         List<User> users = userService.findAllUsers();
+        Random random = new Random();
         for (int i = 0; i < numberOfOrders; i++) {
             Order order = new Order();
+            LocalDateTime creationDate = getRandomDate(90);
+            LocalDateTime updateAt = getRandomDate(90);
+            if (updateAt.isBefore(creationDate)) {
+                updateAt = creationDate;
+            }
+            boolean paidStatus = random.nextBoolean();
+            List<ProductLine> productLines = getListOfProductLine(order);
+            double total = productLines.stream()
+                    .mapToDouble(ProductLine::getTotalProductLineAmount)
+                    .sum();
+            BigDecimal totalPayment = BigDecimal.ZERO;
+            if (paidStatus) {
+                totalPayment = BigDecimal.valueOf(total);
+            }
             User user = users.get((int) Math.floor(Math.random() * users.size()));
             order.setStatus(getStatus());
             order.setAddress(getAdresses());
             order.setDeleted(false);
-            List<ProductLine> productLines = getListOfProductLine(order);
+
             order.setProductLines(productLines);
-            double total = productLines.stream()
-                    .mapToDouble(ProductLine::getTotalProductLineAmount)
-                    .sum();
+
             order.setTotalPrice(Math.round(total * 100.0) / 100.0);
             order.setUser(user);
+            order.setComment(generateRandomString(250));
+            order.setPaidStatus(random.nextBoolean());
+            order.setTotalPayment(totalPayment);
+            order.setCreationDate(creationDate);
+            order.setUpdatedAt(updateAt);
             user.getOrders().add(order);
             orderRepository.save(order);
         }
+    }
+
+    private LocalDateTime getRandomDate(int daysFromNow) {
+        Random random = new Random();
+        int randomDays = random.nextInt(daysFromNow);
+        LocalDateTime currentDate = LocalDateTime.now();
+        return currentDate.minus(randomDays, ChronoUnit.DAYS);
     }
 
     private Status getStatus() {

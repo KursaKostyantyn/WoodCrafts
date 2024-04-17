@@ -20,6 +20,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,5 +68,17 @@ public class Order {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @NotNull
     private User user;
-
+    @NotNull
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    @NotNull
+    @Column(name = "paid_status")
+    private boolean paidStatus;
+    @NotNull
+    @Column(name = "total_payment")
+    @PositiveOrZero
+    private BigDecimal totalPayment;
+    @NotNull
+    @Column(name = "comment")
+    private String comment;
 }
