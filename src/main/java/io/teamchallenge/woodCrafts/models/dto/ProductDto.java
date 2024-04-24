@@ -21,7 +21,7 @@ import java.util.List;
 @ToString
 public class ProductDto {
 
-    private Long id;
+    private String id;
     @Min(value = 0, message = "Price cannot be less than 0")
     private Double price;
     @NotBlank(message = "Name cannot be blank")

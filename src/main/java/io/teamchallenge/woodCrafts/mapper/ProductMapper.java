@@ -2,6 +2,7 @@ package io.teamchallenge.woodCrafts.mapper;
 
 import io.teamchallenge.woodCrafts.models.Product;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
+import io.teamchallenge.woodCrafts.utils.IdConverter;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.modelmapper.Condition;
@@ -24,13 +25,17 @@ public class ProductMapper {
                     mapper.skip(Product::setUpdateDate);
                 });
 
-        return modelMapper.map(productDto, Product.class);
+        Product product = modelMapper.map(productDto, Product.class);
+        product.setId(IdConverter.convertStringToId(productDto.getId()));
+        return product;
     }
 
     public static ProductDto convertProductToProductDto(Product product) {
         ModelMapper modelMapper = new ModelMapper();
 
-        return modelMapper.map(product, ProductDto.class);
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        productDto.setId(IdConverter.convertIdToString(product.getId()));
+        return productDto;
     }
 
     public static void updateProductFromProductDto(ProductDto productDto, Product product) {

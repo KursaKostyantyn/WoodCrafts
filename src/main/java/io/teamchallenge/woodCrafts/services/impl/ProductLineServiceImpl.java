@@ -9,6 +9,7 @@ import io.teamchallenge.woodCrafts.models.dto.ProductLineDto;
 import io.teamchallenge.woodCrafts.repository.ProductLineRepository;
 import io.teamchallenge.woodCrafts.repository.ProductRepository;
 import io.teamchallenge.woodCrafts.services.api.ProductLineService;
+import io.teamchallenge.woodCrafts.utils.IdConverter;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,8 @@ public class ProductLineServiceImpl implements ProductLineService {
     public List<ProductLine> getListOfProductLinesFromListOfProductLinesDto(List<ProductLineDto> productLineDtos) {
         return productLineDtos.stream().map(productLineDto -> {
             ProductLine productLine = ProductLineMapper.convertProductLineDtoToProductLine(productLineDto);
-            Long id = productLineDto.getProductDto().getId();
+            String formattedId = productLineDto.getProductDto().getId();
+            Long id = IdConverter.convertStringToId(formattedId);
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException(String.format("Product with '%s' not found", id)));
             productLine.setProduct(product);
@@ -42,7 +44,8 @@ public class ProductLineServiceImpl implements ProductLineService {
                 Long productLineId = productLineDto.getId();
                 ProductLine productLine = productLineRepository.findById(productLineId)
                         .orElseThrow(() -> new EntityNotFoundException(String.format("Product line with id'%s' not found", productLineId)));
-                Long productId = productLineDto.getProductDto().getId();
+                String formattedId = productLineDto.getProductDto().getId();
+                Long productId = IdConverter.convertStringToId(formattedId);
                 Product product = productRepository.findById(productId)
                         .orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", productId)));
                 ProductLineMapper.updateProductLineFromProductLineDto(productLine, productLineDto);
@@ -50,9 +53,10 @@ public class ProductLineServiceImpl implements ProductLineService {
                 productLine.setOrder(order);
                 productLines.add(productLine);
             } else {
-                Long id = productLineDto.getProductDto().getId();
-                Product product = productRepository.findById(id)
-                        .orElseThrow(() -> new EntityNotFoundException(String.format("Product with '%s' not found", id)));
+                String formattedId = productLineDto.getProductDto().getId();
+                Long productId = IdConverter.convertStringToId(formattedId);
+                Product product = productRepository.findById(productId)
+                        .orElseThrow(() -> new EntityNotFoundException(String.format("Product with '%s' not found", productId)));
                 ProductLine productLine = ProductLineMapper.convertProductLineDtoToProductLine(productLineDto);
                 productLine.setProduct(product);
                 productLine.setOrder(order);

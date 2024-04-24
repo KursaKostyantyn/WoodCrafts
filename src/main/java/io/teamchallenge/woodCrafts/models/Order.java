@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
@@ -79,6 +80,9 @@ public class Order {
     @PositiveOrZero
     private BigDecimal totalPayment;
     @NotNull
-    @Column(name = "comment")
+    @Column(name = "comment", length = 500)
     private String comment;
+    @OneToOne
+    @JoinColumn(name = "payment_and_delivery_id", referencedColumnName = "id")
+    private PaymentAndDelivery paymentAndDelivery;
 }

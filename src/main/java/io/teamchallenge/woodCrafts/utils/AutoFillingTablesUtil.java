@@ -5,6 +5,7 @@ import io.teamchallenge.woodCrafts.models.Category;
 import io.teamchallenge.woodCrafts.models.Color;
 import io.teamchallenge.woodCrafts.models.Material;
 import io.teamchallenge.woodCrafts.models.Order;
+import io.teamchallenge.woodCrafts.models.PaymentAndDelivery;
 import io.teamchallenge.woodCrafts.models.Product;
 import io.teamchallenge.woodCrafts.models.ProductLine;
 import io.teamchallenge.woodCrafts.models.User;
@@ -13,9 +14,10 @@ import io.teamchallenge.woodCrafts.repository.CategoryRepository;
 import io.teamchallenge.woodCrafts.repository.ColorRepository;
 import io.teamchallenge.woodCrafts.repository.MaterialRepository;
 import io.teamchallenge.woodCrafts.repository.OrderRepository;
+import io.teamchallenge.woodCrafts.repository.PaymentAndDeliveryRepository;
 import io.teamchallenge.woodCrafts.repository.ProductRepository;
 import io.teamchallenge.woodCrafts.services.api.UserService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +31,7 @@ import java.util.List;
 import java.util.Random;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AutoFillingTablesUtil {
     private final CategoryRepository categoryRepository;
     private final ColorRepository colorRepository;
@@ -37,6 +39,7 @@ public class AutoFillingTablesUtil {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final UserService userService;
+    private final PaymentAndDeliveryRepository paymentAndDeliveryRepository;
 
     @Bean
     @Transactional
@@ -80,6 +83,9 @@ public class AutoFillingTablesUtil {
             order.setDeleted(false);
 
             order.setProductLines(productLines);
+            PaymentAndDelivery paymentAndDelivery = generatePaymentAndDelivery();
+            savePaymentAndDeliveryEntity(paymentAndDelivery);
+            order.setPaymentAndDelivery(paymentAndDelivery);
 
             order.setTotalPrice(Math.round(total * 100.0) / 100.0);
             order.setUser(user);
@@ -238,13 +244,13 @@ public class AutoFillingTablesUtil {
         Product product = new Product();
         Category category = categoryRepository
                 .findById((long) (1 + Math.floor(Math.random() * categoryRepository.count())))
-                .orElse(null);
+                .orElse(new Category());
         Color color = colorRepository
                 .findById((long) (1 + Math.floor(Math.random() * colorRepository.count())))
-                .orElse(null);
+                .orElse(new Color());
         Material material = materialRepository
                 .findById((long) (1 + Math.floor(Math.random() * materialRepository.count())))
-                .orElse(null);
+                .orElse(new Material());
 
         product.setCategory(category);
         product.setColor(color);
@@ -272,6 +278,29 @@ public class AutoFillingTablesUtil {
             stringBuilder.append(characters.charAt(randomIndex));
         }
         return stringBuilder.toString();
+    }
+
+    private PaymentAndDelivery generatePaymentAndDelivery() {
+        List<String> paymentTypes = new ArrayList<>();
+        paymentTypes.add("Samovivoz");
+        paymentTypes.add("Card");
+        List<String> deliveryType = new ArrayList<>();
+        deliveryType.add("New poshta");
+        deliveryType.add("Ukrposhta");
+        List<String> address = new ArrayList<>();
+        address.add("Kiyv");
+        address.add("Kharkiv");
+        Random random = new Random();
+        return PaymentAndDelivery.builder()
+                .paymentType(paymentTypes.get(random.nextInt(paymentTypes.size())))
+                .delivery(deliveryType.get(random.nextInt(deliveryType.size())))
+                .address(address.get(random.nextInt(address.size())))
+                .build();
+    }
+
+    private PaymentAndDelivery savePaymentAndDeliveryEntity(PaymentAndDelivery paymentAndDelivery) {
+        paymentAndDeliveryRepository.save(paymentAndDelivery);
+        return paymentAndDelivery;
     }
 
 }
