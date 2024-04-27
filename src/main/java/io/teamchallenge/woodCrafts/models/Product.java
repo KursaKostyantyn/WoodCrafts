@@ -67,7 +67,6 @@ public class Product {
     @ManyToOne
     @Cascade(CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "color_id", referencedColumnName = "id")
-    @NotNull
     private Color color;
 
     @Column(name = "weight")
@@ -96,7 +95,6 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
-    @NotNull
     @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private Category category;
 
@@ -114,7 +112,6 @@ public class Product {
     @ManyToOne
     @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "material_id", referencedColumnName = "id")
-    @NotNull
     private Material material;
 
     @Column(name = "creation_date")

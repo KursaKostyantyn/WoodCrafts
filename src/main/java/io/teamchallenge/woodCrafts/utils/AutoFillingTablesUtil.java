@@ -92,10 +92,10 @@ public class AutoFillingTablesUtil {
             order.setComment(generateRandomString(250));
             order.setPaidStatus(random.nextBoolean());
             order.setTotalPayment(totalPayment);
-            order.setCreationDate(creationDate);
-            order.setUpdatedAt(updateAt);
+
             user.getOrders().add(order);
             orderRepository.save(order);
+            order.setCreationDate(creationDate);
         }
     }
 
@@ -236,6 +236,8 @@ public class AutoFillingTablesUtil {
             for (int j = 0; j < numberOfProducts; j++) {
                 Product product = getNewProduct();
                 productRepository.save(product);
+                LocalDateTime creationDate = getRandomDate(90);
+                product.setCreationDate(creationDate);
             }
         }
     }

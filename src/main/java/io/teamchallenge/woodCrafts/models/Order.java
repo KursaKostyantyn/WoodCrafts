@@ -82,8 +82,8 @@ public class Order {
     @NotNull
     private User user;
 
-    @NotNull
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @NotNull
