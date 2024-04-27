@@ -155,7 +155,7 @@ public class AutoFillingTablesUtil {
         categoryNames.add("Ліжка");
         categoryNames.add("Крісла");
         categoryNames.add("Шафи");
-        categoryNames.add("Тумбочки приліжкоіа");
+        categoryNames.add("Тумбочки приліжкова");
         categoryNames.add("Туалетні столики");
         categoryNames.add("Пуфи");
         categoryNames.add("Шафи для одягу");
@@ -223,8 +223,8 @@ public class AutoFillingTablesUtil {
             userDto.setEmail("test" + i + "@test.com");
             userDto.setPassword("123456");
             userDto.setPhone("1234567" + i);
-            userDto.setFirstName("User first name " + i);
-            userDto.setSecondName("User second name " + i);
+            userDto.setFirstName("Ім'я користувача " + generateRandomString(5));
+            userDto.setSecondName("Прізвище користувача " + generateRandomString(7));
             userDto.setOrders(new ArrayList<>());
 
             userService.saveUser(userDto);
@@ -270,7 +270,7 @@ public class AutoFillingTablesUtil {
     }
 
     private String generateRandomString(int length) {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ";
+        String characters = "АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯабвгґдеєжзиіїйклмнопрстуфхцчшщьюя ";
         StringBuilder stringBuilder = new StringBuilder();
         Random random = new Random();
         for (int i = 0; i < length; i++) {
@@ -282,21 +282,21 @@ public class AutoFillingTablesUtil {
 
     private PaymentAndDelivery generatePaymentAndDelivery() {
         List<String> paymentTypes = new ArrayList<>();
-        paymentTypes.add("Samovivoz");
-        paymentTypes.add("Card");
+        paymentTypes.add("Готівка");
+        paymentTypes.add("Картка");
         List<String> deliveryType = new ArrayList<>();
-        deliveryType.add("New poshta");
-        deliveryType.add("Ukrposhta");
+        deliveryType.add("Нова пошта");
+        deliveryType.add("Укрпошта");
         List<String> address = new ArrayList<>();
-        address.add("str. Ukrainskih Geroiv, 47");
-        address.add("str. Vishgorodska, 25");
+        address.add("вул. Українських Героїв, 47");
+        address.add("вул. Хрещатик, 25");
         List<String> cities = new ArrayList<>();
-        cities.add("Kyiv");
-        cities.add("Odesa");
-        cities.add("Kharkiv");
+        cities.add("Київ");
+        cities.add("Одеса");
+        cities.add("Харків");
         List<String> deliveryFees = new ArrayList<>();
-        deliveryFees.add("According to the carrier's rates.");
-        deliveryFees.add("Self-pickup");
+        deliveryFees.add("За тарифами перевізника");
+        deliveryFees.add("Самовивіз");
 
         Random random = new Random();
         return PaymentAndDelivery.builder()
