@@ -1,7 +1,9 @@
 package io.teamchallenge.woodCrafts.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,7 +18,8 @@ import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.List;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -36,6 +39,7 @@ public class User {
     private String secondName;
 
     @Column(name = "email", unique = true)
+    @NonNull
     private String email;
 
     @Column(name = "phone")
@@ -48,6 +52,7 @@ public class User {
     private LocalDate registrationDate;
 
     @Column(name = "password")
+    @NonNull
     private String password;
 
     @Column(name = "order")

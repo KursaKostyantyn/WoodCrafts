@@ -288,13 +288,23 @@ public class AutoFillingTablesUtil {
         deliveryType.add("New poshta");
         deliveryType.add("Ukrposhta");
         List<String> address = new ArrayList<>();
-        address.add("Kiyv");
-        address.add("Kharkiv");
+        address.add("str. Ukrainskih Geroiv, 47");
+        address.add("str. Vishgorodska, 25");
+        List<String> cities = new ArrayList<>();
+        cities.add("Kyiv");
+        cities.add("Odesa");
+        cities.add("Kharkiv");
+        List<String> deliveryFees = new ArrayList<>();
+        deliveryFees.add("According to the carrier's rates.");
+        deliveryFees.add("Self-pickup");
+
         Random random = new Random();
         return PaymentAndDelivery.builder()
                 .paymentType(paymentTypes.get(random.nextInt(paymentTypes.size())))
                 .delivery(deliveryType.get(random.nextInt(deliveryType.size())))
                 .address(address.get(random.nextInt(address.size())))
+                .city(cities.get(random.nextInt(cities.size())))
+                .deliveryFee(deliveryFees.get(random.nextInt(deliveryFees.size())))
                 .build();
     }
 
@@ -302,5 +312,4 @@ public class AutoFillingTablesUtil {
         paymentAndDeliveryRepository.save(paymentAndDelivery);
         return paymentAndDelivery;
     }
-
 }

@@ -1,6 +1,7 @@
 package io.teamchallenge.woodCrafts.models;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,8 +16,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.PositiveOrZero;
 
 
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -39,7 +42,9 @@ public class ProductLine {
     private Product product;
 
     @Column(name = "quantity")
-    private int quantity;
+    @PositiveOrZero
+    @Builder.Default
+    private int quantity = 0;
 
     @Column(name = "total_product_line_amount")
     private double totalProductLineAmount;

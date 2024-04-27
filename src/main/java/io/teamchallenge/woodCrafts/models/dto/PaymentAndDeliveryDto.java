@@ -14,4 +14,6 @@ public class PaymentAndDeliveryDto {
     private String paymentType;
     private String delivery;
     private String address;
+    private String city;
+    private String deliveryFee;
 }

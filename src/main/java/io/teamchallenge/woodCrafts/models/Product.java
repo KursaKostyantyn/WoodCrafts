@@ -1,7 +1,9 @@
 package io.teamchallenge.woodCrafts.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Cascade;
@@ -21,11 +23,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -40,20 +45,24 @@ public class Product {
 
     @Column(name = "price", nullable = false)
     @NotNull
-    private Double price;
+    @Builder.Default
+    private Double price = 0.0;
 
     @Column(name = "name", nullable = false)
     @NotNull
-    private String name;
+    @Builder.Default
+    private String name = "";
 
     @Column(name = "description", length = 1200)
     @NotNull
-    private String description;
+    @Builder.Default
+    private String description = "";
 
     @ElementCollection
     @CollectionTable(name = "photos", joinColumns = @JoinColumn(name = "photo_id"))
     @Column(name = "photos")
-    private List<String> photos;
+    @Builder.Default
+    private List<String> photos = new ArrayList<>();
 
     @ManyToOne
     @Cascade(CascadeType.SAVE_UPDATE)
@@ -63,19 +72,27 @@ public class Product {
 
     @Column(name = "weight")
     @NotNull
-    private Double weight;
+    @PositiveOrZero
+    @Builder.Default
+    private Double weight = 0.0;
 
     @Column(name = "height")
     @NotNull
-    private Double height;
+    @PositiveOrZero
+    @Builder.Default
+    private Double height = 0.0;
 
     @Column(name = "length")
     @NotNull
-    private Double length;
+    @PositiveOrZero
+    @Builder.Default
+    private Double length = 0.0;
 
     @Column(name = "width")
     @NotNull
-    private Double width;
+    @PositiveOrZero
+    @Builder.Default
+    private Double width = 0.0;
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
@@ -85,11 +102,14 @@ public class Product {
 
     @Column(name = "quantity")
     @NotNull
-    private Integer quantity;
+    @PositiveOrZero
+    @Builder.Default
+    private Integer quantity = 0;
 
     @Column(name = "warranty")
     @NotNull
-    private Integer warranty;
+    @Builder.Default
+    private Integer warranty = 0;
 
     @ManyToOne
     @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
@@ -107,9 +127,11 @@ public class Product {
 
 
     @Column(name = "deleted")
+    @Builder.Default
     private Boolean deleted = false;
 
     @OneToMany(mappedBy = "product")
     @ToString.Exclude
+    @Builder.Default
     private List<ProductLine> productLines = new ArrayList<>();
 }

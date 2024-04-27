@@ -1,8 +1,10 @@
 package io.teamchallenge.woodCrafts.models;
 
 import io.teamchallenge.woodCrafts.constants.Status;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Cascade;
@@ -27,7 +29,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -52,36 +56,51 @@ public class Order {
     private String address;
 
     @Column(name = "status")
-    private Status status;
+    @NotNull
+    @Builder.Default
+    private Status status = Status.NEW;
 
     @OneToMany(mappedBy = "order")
     @Cascade(CascadeType.ALL)
     @ToString.Exclude
+    @Builder.Default
     private List<ProductLine> productLines = new ArrayList<>();
 
     @Column(name = "deleted")
-    private Boolean deleted;
+    @NotNull
+    @Builder.Default
+    private Boolean deleted = false;
 
     @Column(name = "total_price")
-    private Double totalPrice;
+    @PositiveOrZero
+    @NotNull
+    @Builder.Default
+    private Double totalPrice = 0.0;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @NotNull
     private User user;
+
     @NotNull
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
     @NotNull
     @Column(name = "paid_status")
     private boolean paidStatus;
+
     @NotNull
     @Column(name = "total_payment")
     @PositiveOrZero
-    private BigDecimal totalPayment;
+    @Builder.Default
+    private BigDecimal totalPayment = BigDecimal.ZERO;
+
     @NotNull
     @Column(name = "comment", length = 500)
-    private String comment;
+    @Builder.Default
+    private String comment = "";
+
     @OneToOne
     @JoinColumn(name = "payment_and_delivery_id", referencedColumnName = "id")
     private PaymentAndDelivery paymentAndDelivery;

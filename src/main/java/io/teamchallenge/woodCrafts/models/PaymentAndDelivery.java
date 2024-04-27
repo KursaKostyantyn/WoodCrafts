@@ -25,11 +25,20 @@ public class PaymentAndDelivery {
     @Column(name = "id", nullable = false)
     private Long id;
     @Column(name = "payment_type", nullable = false)
-    private String paymentType;
+    @Builder.Default
+    private String paymentType = "";
     @Column(name = "delivery", nullable = false)
-    private String delivery;
+    @Builder.Default
+    private String delivery = "";
     @Column(name = "address", nullable = false)
-    private String address;
+    @Builder.Default
+    private String address = "";
+    @Column(name = "city", nullable = false)
+    @Builder.Default
+    private String city = "";
+    @Column(name = "deliveryFee")
+    @Builder.Default
+    private String deliveryFee = "";
     @OneToOne(mappedBy = "paymentAndDelivery")
     private Order order;
 }
