@@ -38,7 +38,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<Void> createOrder(OrderDto orderDto) {
         Order order = OrderMapper.convertOrderDtoToOrder(orderDto);
-        List<ProductLine> productLines = productLineService.getListOfProductLinesFromListOfProductLinesDto(orderDto.getProductLinesDto());
+        List<ProductLine> productLines = productLineService.getListOfProductLinesFromListOfProductLinesDto(orderDto.getProductLines());
 
         productLines.forEach(productLine -> productLine.setOrder(order));
         order.setProductLines(productLines);
@@ -54,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
         List<ProductLineDto> productLineDtos = order.getProductLines().stream()
                 .map(ProductLineMapper::convertProductLineToProductLineDto)
                 .collect(Collectors.toList());
-        orderDto.setProductLinesDto(productLineDtos);
+        orderDto.setProductLines(productLineDtos);
         return ResponseEntity.status(HttpStatus.OK).body(orderDto);
     }
 
@@ -62,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
     public ResponseEntity<Void> updateOrderById(Long id, OrderDto orderDto) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Order with id='%s' not found", id)));
-        List<ProductLine> productLines = productLineService.updateProductLines(orderDto.getProductLinesDto(), order);
+        List<ProductLine> productLines = productLineService.updateProductLines(orderDto.getProductLines(), order);
         order.setAddress(orderDto.getAddress());
         order.setStatus(Status.valueOf(orderDto.getStatus()));
         order.setDeleted(orderDto.getDeleted());

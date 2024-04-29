@@ -14,7 +14,7 @@ import lombok.ToString;
 public class ProductLineDto {
     private Long id;
     private Long orderId;
-    private ProductDto productDto;
+    private ProductDto product;
     private int quantity;
     private double totalProductLineAmount;
 }

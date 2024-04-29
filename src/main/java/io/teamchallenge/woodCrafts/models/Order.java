@@ -50,7 +50,7 @@ public class Order {
 
     @Column(name = "update_date")
     @UpdateTimestamp
-    private LocalDateTime localDateTime;
+    private LocalDateTime update_date;
 
     @Column(name = "address")
     private String address;
@@ -80,6 +80,7 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @NotNull
+    @ToString.Exclude
     private User user;
 
     @Column(name = "updated_at")

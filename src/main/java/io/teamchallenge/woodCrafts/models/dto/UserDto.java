@@ -24,5 +24,4 @@ public class UserDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private LocalDate registrationDate;
     private String password;
-    private List<OrderDto> orders;
 }

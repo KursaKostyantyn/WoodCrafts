@@ -221,11 +221,10 @@ public class AutoFillingTablesUtil {
             UserDto userDto = new UserDto();
             userDto.setAddress(getAdresses());
             userDto.setEmail("test" + i + "@test.com");
-            userDto.setPassword("123456");
+            userDto.setPassword(PasswordGeneratorUtil.generatePassword());
             userDto.setPhone("1234567" + i);
             userDto.setFirstName("Ім'я користувача " + generateRandomString(5));
             userDto.setSecondName("Прізвище користувача " + generateRandomString(7));
-            userDto.setOrders(new ArrayList<>());
 
             userService.saveUser(userDto);
         }

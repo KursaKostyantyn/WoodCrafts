@@ -27,7 +27,7 @@ public class ProductLineServiceImpl implements ProductLineService {
     public List<ProductLine> getListOfProductLinesFromListOfProductLinesDto(List<ProductLineDto> productLineDtos) {
         return productLineDtos.stream().map(productLineDto -> {
             ProductLine productLine = ProductLineMapper.convertProductLineDtoToProductLine(productLineDto);
-            String formattedId = productLineDto.getProductDto().getId();
+            String formattedId = productLineDto.getProduct().getId();
             Long id = IdConverter.convertStringToId(formattedId);
             Product product = productRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException(String.format("Product with '%s' not found", id)));
@@ -44,7 +44,7 @@ public class ProductLineServiceImpl implements ProductLineService {
                 Long productLineId = productLineDto.getId();
                 ProductLine productLine = productLineRepository.findById(productLineId)
                         .orElseThrow(() -> new EntityNotFoundException(String.format("Product line with id'%s' not found", productLineId)));
-                String formattedId = productLineDto.getProductDto().getId();
+                String formattedId = productLineDto.getProduct().getId();
                 Long productId = IdConverter.convertStringToId(formattedId);
                 Product product = productRepository.findById(productId)
                         .orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", productId)));
@@ -53,7 +53,7 @@ public class ProductLineServiceImpl implements ProductLineService {
                 productLine.setOrder(order);
                 productLines.add(productLine);
             } else {
-                String formattedId = productLineDto.getProductDto().getId();
+                String formattedId = productLineDto.getProduct().getId();
                 Long productId = IdConverter.convertStringToId(formattedId);
                 Product product = productRepository.findById(productId)
                         .orElseThrow(() -> new EntityNotFoundException(String.format("Product with '%s' not found", productId)));

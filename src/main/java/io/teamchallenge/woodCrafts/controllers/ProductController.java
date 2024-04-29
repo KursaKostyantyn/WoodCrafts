@@ -2,6 +2,7 @@ package io.teamchallenge.woodCrafts.controllers;
 
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
 import io.teamchallenge.woodCrafts.services.api.ProductService;
@@ -107,6 +108,7 @@ public class ProductController {
         return productService.deleteProductList(productDtoList);
     }
 
+    @Schema(hidden = true)
     @PostMapping("/addPhoto")
     public ResponseEntity<String> addPhoto(@RequestParam String comment, @RequestParam MultipartFile multipartFile) {
         String s = comment + ", " + multipartFile.getName() + ", " + multipartFile.getOriginalFilename() + ", " + multipartFile.getSize();

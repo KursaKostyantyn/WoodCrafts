@@ -21,7 +21,7 @@ public class ProductLineMapper {
         ModelMapper modelMapper = new ModelMapper();
         ProductDto productDto = ProductMapper.convertProductToProductDto(productLine.getProduct());
         ProductLineDto productLineDto = modelMapper.map(productLine, ProductLineDto.class);
-        productLineDto.setProductDto(productDto);
+        productLineDto.setProduct(productDto);
         return productLineDto;
     }
 

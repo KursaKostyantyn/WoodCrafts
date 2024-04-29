@@ -15,7 +15,7 @@ public class UserMapper {
         modelMapper.typeMap(UserDto.class, User.class)
                 .addMappings(mapper -> mapper.skip(User::setRegistrationDate));
         User user = modelMapper.map(userDto, User.class);
-        user.setPassword(PasswordGeneratorUtil.generatePassword());
+        user.setPassword(userDto.getPassword());
 
         return user;
     }
