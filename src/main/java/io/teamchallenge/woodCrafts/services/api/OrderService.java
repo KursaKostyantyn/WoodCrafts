@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface OrderService {
 
-    ResponseEntity<Void> createOrder(OrderDto orderDto);
+    ResponseEntity<Void> save(OrderDto orderDto);
 
     ResponseEntity<OrderDto> getOrderById(Long id);
 

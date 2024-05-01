@@ -38,7 +38,7 @@ public class ProductController {
 
     @PostMapping("/products")
     public ResponseEntity<Void> createProduct(@Valid @RequestBody ProductDto productDto) {
-        return productService.createProduct(productDto);
+        return productService.save(productDto);
     }
 
     @GetMapping("/products/byIds")
@@ -47,7 +47,7 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "ASC") Sort.Direction direction
     ) {
-        return productService.getProductById(ids, sortBy, direction);
+        return productService.getProductsById(ids, sortBy, direction);
     }
 
     @PatchMapping("/products/{id}")

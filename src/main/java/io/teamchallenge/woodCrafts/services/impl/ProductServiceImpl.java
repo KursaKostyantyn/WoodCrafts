@@ -30,6 +30,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -52,8 +54,9 @@ public class ProductServiceImpl implements ProductService {
     private final ColorRepository colorRepository;
     private final MaterialRepository materialRepository;
 
+    @Transactional
     @Override
-    public ResponseEntity<Void> createProduct(ProductDto productDto) {
+    public ResponseEntity<Void> save(ProductDto productDto) {
         Product product = ProductMapper.convertProductDtoToProduct(productDto);
         Category category = categoryRepository.findById(productDto.getCategoryId()).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", productDto.getCategoryId())));
         product.setCategory(category);
@@ -66,8 +69,9 @@ public class ProductServiceImpl implements ProductService {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Transactional
     @Override
-    public ResponseEntity<List<ProductDto>> getProductById(List<Long> ids, String sortBy, Sort.Direction direction) {
+    public ResponseEntity<List<ProductDto>> getProductsById(List<Long> ids, String sortBy, Sort.Direction direction) {
         List<Product> products = new ArrayList<>();
         ids.forEach(id -> {
             Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", ids)));
@@ -78,6 +82,15 @@ public class ProductServiceImpl implements ProductService {
         productDtos.sort(comparator);
         return ResponseEntity.status(HttpStatus.OK).body(productDtos);
     }
+
+    @Transactional
+    @Override
+    public ProductDto getProductById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
+        return ProductMapper.convertProductToProductDto(product);
+    }
+
+    @Transactional
 
     @Deprecated
     @Override
@@ -136,7 +149,7 @@ public class ProductServiceImpl implements ProductService {
                         productDto.setWarranty(warranty);
                         productDto.setMaterialId(materialId);
 
-                        createProduct(productDto);
+                        save(productDto);
                     }
                 }
             } catch (IOException e) {

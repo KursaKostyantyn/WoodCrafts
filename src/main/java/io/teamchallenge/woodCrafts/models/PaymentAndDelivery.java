@@ -39,6 +39,6 @@ public class PaymentAndDelivery {
     @Column(name = "deliveryFee")
     @Builder.Default
     private String deliveryFee = "";
-    @OneToOne(mappedBy = "paymentAndDelivery")
-    private Order order;
+//    @OneToOne(mappedBy = "paymentAndDelivery")
+//    private Order order;
 }

@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,8 @@ public class ColorServiceImpl implements ColorService {
     private final ColorRepository colorRepository;
 
     @Override
-    public ResponseEntity<Void> createColor(ColorDto colorDto) {
+    @Transactional
+    public ResponseEntity<Void> save(ColorDto colorDto) {
         Optional<Color> existingColor = colorRepository.findByName(colorDto.getName());
         if (existingColor.isPresent()) {
             throw new DuplicateException(String.format("Category with name='%s' already exists", colorDto.getName()));

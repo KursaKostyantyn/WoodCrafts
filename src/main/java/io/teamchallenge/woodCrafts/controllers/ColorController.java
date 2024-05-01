@@ -26,7 +26,7 @@ public class ColorController {
 
     @PostMapping("colors")
     public ResponseEntity<Void> createColor(@Valid @RequestBody ColorDto colorDto) {
-        return colorService.createColor(colorDto);
+        return colorService.save(colorDto);
     }
 
     @GetMapping("colors/{id}")

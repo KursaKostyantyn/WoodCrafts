@@ -36,5 +36,5 @@ public class OrderDto {
     private boolean paidStatus;
     private BigDecimal totalPayment;
     private String comment;
-    private PaymentAndDeliveryDto paymentAndDelivery;
+//    private PaymentAndDeliveryDto paymentAndDelivery;
 }

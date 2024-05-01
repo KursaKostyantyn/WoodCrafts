@@ -15,16 +15,12 @@ public class UserMapper {
         modelMapper.typeMap(UserDto.class, User.class)
                 .addMappings(mapper -> mapper.skip(User::setRegistrationDate));
         User user = modelMapper.map(userDto, User.class);
-        user.setPassword(userDto.getPassword());
 
         return user;
     }
 
     public static UserDto convertUserToUserDto(User user) {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.typeMap(User.class, UserDto.class)
-                .addMappings(mapper -> mapper.skip(UserDto::setPassword));
-
         return modelMapper.map(user, UserDto.class);
     }
 }

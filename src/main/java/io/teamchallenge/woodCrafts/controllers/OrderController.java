@@ -30,8 +30,8 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/orders")
-    public ResponseEntity<Void> createOrder(@Valid @RequestBody OrderDto orderDto) {
-        return orderService.createOrder(orderDto);
+    public ResponseEntity<Void> save(@Valid @RequestBody OrderDto orderDto) {
+        return orderService.save(orderDto);
     }
 
     @GetMapping("/orders/{id}")

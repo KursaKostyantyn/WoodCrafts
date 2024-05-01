@@ -13,9 +13,11 @@ import java.util.List;
 
 public interface ProductService {
 
-    ResponseEntity<Void> createProduct(ProductDto productDto);
+    ResponseEntity<Void> save(ProductDto productDto);
 
-    ResponseEntity<List<ProductDto>> getProductById(List<Long> ids, String sortBy, Sort.Direction direction);
+    ResponseEntity<List<ProductDto>> getProductsById(List<Long> ids, String sortBy, Sort.Direction direction);
+
+    ProductDto getProductById(Long id);
 
     ResponseEntity<Void> deleteProductById(Long id);
 

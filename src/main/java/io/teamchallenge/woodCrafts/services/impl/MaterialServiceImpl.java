@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,8 +23,9 @@ public class MaterialServiceImpl implements MaterialService {
 
     private final MaterialRepository materialRepository;
 
+    @Transactional
     @Override
-    public ResponseEntity<Void> createMaterial(MaterialDto materialDto) {
+    public ResponseEntity<Void> save(MaterialDto materialDto) {
         Optional<Material> existingMaterial = materialRepository.findByName(materialDto.getName());
         if (existingMaterial.isPresent()) {
             throw new DuplicateException(String.format("Material with name='%s' already exists", materialDto.getName()));

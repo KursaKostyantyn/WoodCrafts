@@ -30,7 +30,7 @@ public class CategoryController {
 
     @PostMapping("/categories")
     public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
-        return categoryService.createCategory(categoryDto);
+        return categoryService.save(categoryDto);
     }
 
     @GetMapping("/categories/{id}")

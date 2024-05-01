@@ -7,6 +7,7 @@ import io.teamchallenge.woodCrafts.repository.UserRepository;
 import io.teamchallenge.woodCrafts.services.api.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public void saveUser(UserDto userDto) {
         User user = UserMapper.convertUserDtoToUser(userDto);

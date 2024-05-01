@@ -1,14 +1,18 @@
 package io.teamchallenge.woodCrafts.utils;
 
 import io.teamchallenge.woodCrafts.constants.Status;
+import io.teamchallenge.woodCrafts.mapper.ProductMapper;
+import io.teamchallenge.woodCrafts.mapper.UserMapper;
 import io.teamchallenge.woodCrafts.models.Category;
-import io.teamchallenge.woodCrafts.models.Color;
-import io.teamchallenge.woodCrafts.models.Material;
-import io.teamchallenge.woodCrafts.models.Order;
 import io.teamchallenge.woodCrafts.models.PaymentAndDelivery;
 import io.teamchallenge.woodCrafts.models.Product;
-import io.teamchallenge.woodCrafts.models.ProductLine;
 import io.teamchallenge.woodCrafts.models.User;
+import io.teamchallenge.woodCrafts.models.dto.CategoryDto;
+import io.teamchallenge.woodCrafts.models.dto.ColorDto;
+import io.teamchallenge.woodCrafts.models.dto.MaterialDto;
+import io.teamchallenge.woodCrafts.models.dto.OrderDto;
+import io.teamchallenge.woodCrafts.models.dto.ProductDto;
+import io.teamchallenge.woodCrafts.models.dto.ProductLineDto;
 import io.teamchallenge.woodCrafts.models.dto.UserDto;
 import io.teamchallenge.woodCrafts.repository.CategoryRepository;
 import io.teamchallenge.woodCrafts.repository.ColorRepository;
@@ -16,16 +20,21 @@ import io.teamchallenge.woodCrafts.repository.MaterialRepository;
 import io.teamchallenge.woodCrafts.repository.OrderRepository;
 import io.teamchallenge.woodCrafts.repository.PaymentAndDeliveryRepository;
 import io.teamchallenge.woodCrafts.repository.ProductRepository;
+import io.teamchallenge.woodCrafts.services.api.CategoryService;
+import io.teamchallenge.woodCrafts.services.api.ColorService;
+import io.teamchallenge.woodCrafts.services.api.MaterialService;
+import io.teamchallenge.woodCrafts.services.api.OrderService;
+import io.teamchallenge.woodCrafts.services.api.ProductService;
 import io.teamchallenge.woodCrafts.services.api.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -40,9 +49,13 @@ public class AutoFillingTablesUtil {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final PaymentAndDeliveryRepository paymentAndDeliveryRepository;
+    private final CategoryService categoryService;
+    private final ColorService colorService;
+    private final MaterialService materialService;
+    private final ProductService productService;
+    private final OrderService orderService;
 
     @Bean
-    @Transactional
     public void autoFilling() {
         List<Category> categories = categoryRepository.findAll();
         if (categories.isEmpty()) {
@@ -57,44 +70,43 @@ public class AutoFillingTablesUtil {
         }
     }
 
-
-    private void saveOrders(int numberOfOrders) {
+    public void saveOrders(int numberOfOrders) {
         List<User> users = userService.findAllUsers();
         Random random = new Random();
         for (int i = 0; i < numberOfOrders; i++) {
-            Order order = new Order();
+            OrderDto order = new OrderDto();
             LocalDateTime creationDate = getRandomDate(90);
             LocalDateTime updateAt = getRandomDate(90);
             if (updateAt.isBefore(creationDate)) {
                 updateAt = creationDate;
             }
             boolean paidStatus = random.nextBoolean();
-            List<ProductLine> productLines = getListOfProductLine(order);
+            List<ProductLineDto> productLines = getListOfProductLine(order);
             double total = productLines.stream()
-                    .mapToDouble(ProductLine::getTotalProductLineAmount)
+                    .mapToDouble(ProductLineDto::getTotalProductLineAmount)
                     .sum();
             BigDecimal totalPayment = BigDecimal.ZERO;
             if (paidStatus) {
                 totalPayment = BigDecimal.valueOf(total);
             }
             User user = users.get((int) Math.floor(Math.random() * users.size()));
-            order.setStatus(getStatus());
+            order.setStatus(getStatus().getRepresentationStatus());
             order.setAddress(getAdresses());
             order.setDeleted(false);
 
             order.setProductLines(productLines);
             PaymentAndDelivery paymentAndDelivery = generatePaymentAndDelivery();
             savePaymentAndDeliveryEntity(paymentAndDelivery);
-            order.setPaymentAndDelivery(paymentAndDelivery);
+//            order.setPaymentAndDelivery(paymentAndDelivery);
 
             order.setTotalPrice(Math.round(total * 100.0) / 100.0);
-            order.setUser(user);
+            UserDto userDto = UserMapper.convertUserToUserDto(user);
+            order.setUser(userDto);
             order.setComment(generateRandomString(250));
             order.setPaidStatus(random.nextBoolean());
             order.setTotalPayment(totalPayment);
 
-            user.getOrders().add(order);
-            orderRepository.save(order);
+            orderService.save(order);
             order.setCreationDate(creationDate);
         }
     }
@@ -131,24 +143,23 @@ public class AutoFillingTablesUtil {
     }
 
 
-    private List<ProductLine> getListOfProductLine(Order order) {
-        List<ProductLine> productLines = new ArrayList<>();
+    private List<ProductLineDto> getListOfProductLine(OrderDto order) {
+        List<ProductLineDto> productLines = new ArrayList<>();
         for (int i = 1; i < (2 + (int) Math.round(Math.random() * 20)); i++) {
             long id = 1 + (long) Math.floor(Math.random() * productRepository.count());
-            ProductLine productLine = new ProductLine();
-            Product product = productRepository.findById(id).orElse(null);
-            productLine.setProduct(product);
+            ProductLineDto productLine = new ProductLineDto();
+            ProductDto productDto = productService.getProductById(id);
+            productLine.setProduct(productDto);
             productLine.setQuantity((int) Math.round(Math.random() * 50));
-            assert product != null;
-            productLine.setTotalProductLineAmount(productLine.getQuantity() * product.getPrice());
-            productLine.setOrder(order);
+            assert productDto != null;
+            productLine.setTotalProductLineAmount(productLine.getQuantity() * productDto.getPrice());
+            productLine.setOrderId(order.getId());
             productLines.add(productLine);
         }
         return productLines;
     }
 
-
-    private void saveCategory() {
+    public void saveCategory() {
         List<String> categoryNames = new ArrayList<>();
         categoryNames.add("Столи");
         categoryNames.add("Стільці");
@@ -163,14 +174,13 @@ public class AutoFillingTablesUtil {
         categoryNames.add("Журнальні столики");
         categoryNames.add("Шезлонги");
         categoryNames.forEach(categoryName -> {
-            Category category = new Category();
+            CategoryDto category = new CategoryDto();
             category.setName(categoryName);
-            category.setProducts(new ArrayList<>());
-            categoryRepository.save(category);
+            categoryService.save(category);
         });
     }
 
-    private void saveColoros() {
+    public void saveColoros() {
         List<String> colorNames = new ArrayList<>();
         colorNames.add("червоний");
         colorNames.add("блакитний");
@@ -186,14 +196,13 @@ public class AutoFillingTablesUtil {
         colorNames.add("Персиковий");
 
         colorNames.forEach(colorName -> {
-            Color color = new Color();
+            ColorDto color = new ColorDto();
             color.setName(colorName);
-            color.setProducts(new ArrayList<>());
-            colorRepository.save(color);
+            colorService.save(color);
         });
     }
 
-    private void saveMaterials() {
+    public void saveMaterials() {
         List<String> materialNames = new ArrayList<>();
         materialNames.add("дерево");
         materialNames.add("камінь");
@@ -208,14 +217,13 @@ public class AutoFillingTablesUtil {
         materialNames.add("Алюміній");
         materialNames.add("Чугуній");
         materialNames.forEach(materialName -> {
-            Material material = new Material();
+            MaterialDto material = new MaterialDto();
             material.setName(materialName);
-            material.setProducts(new ArrayList<>());
-            materialRepository.save(material);
+            materialService.save(material);
         });
     }
 
-    private void saveUsers() {
+    public void saveUsers() {
 
         for (int i = 1; i <= 5; i++) {
             UserDto userDto = new UserDto();
@@ -230,32 +238,26 @@ public class AutoFillingTablesUtil {
         }
     }
 
-    private void saveProducts(int numberOfProducts) {
+    public void saveProducts(int numberOfProducts) {
         for (long i = 1; i <= 20; i++) {
             for (int j = 0; j < numberOfProducts; j++) {
-                Product product = getNewProduct();
-                productRepository.save(product);
+                ProductDto product = getNewProductDto();
+                productService.save(product);
                 LocalDateTime creationDate = getRandomDate(90);
                 product.setCreationDate(creationDate);
             }
         }
     }
 
-    private Product getNewProduct() {
-        Product product = new Product();
-        Category category = categoryRepository
-                .findById((long) (1 + Math.floor(Math.random() * categoryRepository.count())))
-                .orElse(new Category());
-        Color color = colorRepository
-                .findById((long) (1 + Math.floor(Math.random() * colorRepository.count())))
-                .orElse(new Color());
-        Material material = materialRepository
-                .findById((long) (1 + Math.floor(Math.random() * materialRepository.count())))
-                .orElse(new Material());
+    private ProductDto getNewProductDto() {
+        ProductDto product = new ProductDto();
+        Long categoryId = (long) (1 + Math.floor(Math.random() * categoryRepository.count()));
+        Long colorId = (long) (1 + Math.floor(Math.random() * colorRepository.count()));
+        Long materialId = (long) (1 + Math.floor(Math.random() * materialRepository.count()));
 
-        product.setCategory(category);
-        product.setColor(color);
-        product.setMaterial(material);
+        product.setCategoryId(categoryId);
+        product.setColorId(colorId);
+        product.setMaterialId(materialId);
         product.setName("product " + generateRandomString(5));
         product.setDescription(generateRandomString(100));
         product.setHeight(Math.round(Math.random() * 100) / 10.0);

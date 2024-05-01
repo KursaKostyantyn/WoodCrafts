@@ -21,6 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,8 +36,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductLineService productLineService;
 
+    @Transactional
     @Override
-    public ResponseEntity<Void> createOrder(OrderDto orderDto) {
+    public ResponseEntity<Void> save(OrderDto orderDto) {
         Order order = OrderMapper.convertOrderDtoToOrder(orderDto);
         List<ProductLine> productLines = productLineService.getListOfProductLinesFromListOfProductLinesDto(orderDto.getProductLines());
 

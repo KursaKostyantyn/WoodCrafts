@@ -8,6 +8,9 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.Condition;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.util.Objects;
 
@@ -26,7 +29,9 @@ public class ProductMapper {
                 });
 
         Product product = modelMapper.map(productDto, Product.class);
-        product.setId(IdConverter.convertStringToId(productDto.getId()));
+        if(productDto.getId()!=null){
+            product.setId(IdConverter.convertStringToId(productDto.getId()));
+        }
         return product;
     }
 
@@ -35,6 +40,7 @@ public class ProductMapper {
 
         ProductDto productDto = modelMapper.map(product, ProductDto.class);
         productDto.setId(IdConverter.convertIdToString(product.getId()));
+        productDto.setPhotos(product.getPhotos());
         return productDto;
     }
 

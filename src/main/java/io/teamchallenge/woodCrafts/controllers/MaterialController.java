@@ -26,7 +26,7 @@ public class MaterialController {
 
     @PostMapping("/materials")
     public ResponseEntity<Void> createMaterial(@Valid @RequestBody MaterialDto materialDto) {
-        return materialService.createMaterial(materialDto);
+        return materialService.save(materialDto);
     }
 
     @GetMapping("/materials/{id}")
