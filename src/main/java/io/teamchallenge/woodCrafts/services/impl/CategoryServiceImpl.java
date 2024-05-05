@@ -8,8 +8,6 @@ import io.teamchallenge.woodCrafts.models.dto.CategoryDto;
 import io.teamchallenge.woodCrafts.repository.CategoryRepository;
 import io.teamchallenge.woodCrafts.services.api.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,60 +20,50 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
     @Transactional
-    public ResponseEntity<Void> save(CategoryDto categoryDto) {
+    @Override
+    public void save(CategoryDto categoryDto) {
         Optional<Category> existingCategory = categoryRepository.findByName(categoryDto.getName());
-        if (existingCategory.isPresent()){
-            throw new DuplicateException(String.format("Category with name='%s' already exists",categoryDto.getName()));
+        if (existingCategory.isPresent()) {
+            throw new DuplicateException(String.format("Category with name='%s' already exists", categoryDto.getName()));
         }
-        Category category = CategoryMapper.convertCategoryDtoToCategory(categoryDto);
+        Category category = categoryMapper.categoryDtoToCategory(categoryDto);
         categoryRepository.save(category);
-
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Transactional
     @Override
-    public ResponseEntity<CategoryDto> findCategoryById(Long id) {
+    public CategoryDto findCategoryById(Long id) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", id)));
-        if (category == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(CategoryMapper.convertCategoryToCategoryDto(category));
+        return categoryMapper.categoryToCategoryDto(category);
     }
 
     @Override
-    public ResponseEntity<Void> deleteCategoryById(Long id) {
+    @Transactional
+    public void deleteCategoryById(Long id) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", id)));
         category.setDeleted(true);
         categoryRepository.save(category);
-
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Transactional
     @Override
-    public ResponseEntity<Void> updateCategoryById(CategoryDto categoryDto, Long id) {
+    public void updateCategoryById(CategoryDto categoryDto, Long id) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", id)));
-        Optional<Category> existingCategory = categoryRepository.findByName(categoryDto.getName());
-        if (existingCategory.isPresent() && existingCategory.get().getId().equals(id)){
-            throw new DuplicateException(String.format("Category with name='%s' already exists",categoryDto.getName()));
-        }
-        category.setName(categoryDto.getName());
-        category.setDeleted(categoryDto.isDeleted());
+        categoryMapper.updateCategoryFromCategoryDto(category, categoryDto);
         categoryRepository.save(category);
-
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Transactional
     @Override
-    public ResponseEntity<List<CategoryDto>> getAllCategories(boolean isDeleted) {
+    public List<CategoryDto> getAllCategories(boolean isDeleted) {
         List<Category> categories = categoryRepository.findAllByDeleted(isDeleted);
         List<CategoryDto> categoryDtos = categories.stream()
-                .map(CategoryMapper::convertCategoryToCategoryDto)
+                .map(categoryMapper::categoryToCategoryDto)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.status(HttpStatus.OK).body(categoryDtos);
+        return categoryDtos;
     }
 }

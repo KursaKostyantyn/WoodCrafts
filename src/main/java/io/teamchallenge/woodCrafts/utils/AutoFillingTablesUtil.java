@@ -1,16 +1,14 @@
 package io.teamchallenge.woodCrafts.utils;
 
 import io.teamchallenge.woodCrafts.constants.Status;
-import io.teamchallenge.woodCrafts.mapper.ProductMapper;
 import io.teamchallenge.woodCrafts.mapper.UserMapper;
 import io.teamchallenge.woodCrafts.models.Category;
-import io.teamchallenge.woodCrafts.models.PaymentAndDelivery;
-import io.teamchallenge.woodCrafts.models.Product;
 import io.teamchallenge.woodCrafts.models.User;
 import io.teamchallenge.woodCrafts.models.dto.CategoryDto;
 import io.teamchallenge.woodCrafts.models.dto.ColorDto;
 import io.teamchallenge.woodCrafts.models.dto.MaterialDto;
 import io.teamchallenge.woodCrafts.models.dto.OrderDto;
+import io.teamchallenge.woodCrafts.models.dto.PaymentAndDeliveryDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductLineDto;
 import io.teamchallenge.woodCrafts.models.dto.UserDto;
@@ -24,6 +22,7 @@ import io.teamchallenge.woodCrafts.services.api.CategoryService;
 import io.teamchallenge.woodCrafts.services.api.ColorService;
 import io.teamchallenge.woodCrafts.services.api.MaterialService;
 import io.teamchallenge.woodCrafts.services.api.OrderService;
+import io.teamchallenge.woodCrafts.services.api.PaymentAndDeliveryService;
 import io.teamchallenge.woodCrafts.services.api.ProductService;
 import io.teamchallenge.woodCrafts.services.api.UserService;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +33,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -46,14 +44,14 @@ public class AutoFillingTablesUtil {
     private final ColorRepository colorRepository;
     private final MaterialRepository materialRepository;
     private final ProductRepository productRepository;
-    private final OrderRepository orderRepository;
     private final UserService userService;
-    private final PaymentAndDeliveryRepository paymentAndDeliveryRepository;
     private final CategoryService categoryService;
     private final ColorService colorService;
     private final MaterialService materialService;
     private final ProductService productService;
     private final OrderService orderService;
+    private final PaymentAndDeliveryService paymentAndDeliveryService;
+    private final UserMapper userMapper;
 
     @Bean
     public void autoFilling() {
@@ -95,12 +93,12 @@ public class AutoFillingTablesUtil {
             order.setDeleted(false);
 
             order.setProductLines(productLines);
-            PaymentAndDelivery paymentAndDelivery = generatePaymentAndDelivery();
-            savePaymentAndDeliveryEntity(paymentAndDelivery);
-//            order.setPaymentAndDelivery(paymentAndDelivery);
+            PaymentAndDeliveryDto paymentAndDelivery = getPaymentAndDelivery();
+
+            order.setPaymentAndDelivery(paymentAndDelivery);
 
             order.setTotalPrice(Math.round(total * 100.0) / 100.0);
-            UserDto userDto = UserMapper.convertUserToUserDto(user);
+            UserDto userDto = userMapper.userToUserDto(user);
             order.setUser(userDto);
             order.setComment(generateRandomString(250));
             order.setPaidStatus(random.nextBoolean());
@@ -115,7 +113,7 @@ public class AutoFillingTablesUtil {
         Random random = new Random();
         int randomDays = random.nextInt(daysFromNow);
         LocalDateTime currentDate = LocalDateTime.now();
-        return currentDate.minus(randomDays, ChronoUnit.DAYS);
+        return currentDate.minusDays(randomDays);
     }
 
     private Status getStatus() {
@@ -267,6 +265,7 @@ public class AutoFillingTablesUtil {
         product.setPhotos(Collections.singletonList("https://content1.rozetka.com.ua/goods/images/big/273094280.jpg"));
         product.setPrice(Math.round(Math.random() * 100000) / 100.0);
         product.setQuantity((int) (Math.random() * 100));
+        product.setDeleted(false);
         product.setWarranty(12);
 
         return product;
@@ -283,7 +282,7 @@ public class AutoFillingTablesUtil {
         return stringBuilder.toString();
     }
 
-    private PaymentAndDelivery generatePaymentAndDelivery() {
+    private PaymentAndDeliveryDto getPaymentAndDelivery() {
         List<String> paymentTypes = new ArrayList<>();
         paymentTypes.add("Готівка");
         paymentTypes.add("Картка");
@@ -302,17 +301,18 @@ public class AutoFillingTablesUtil {
         deliveryFees.add("Самовивіз");
 
         Random random = new Random();
-        return PaymentAndDelivery.builder()
+        PaymentAndDeliveryDto paymentAndDelivery = PaymentAndDeliveryDto.builder()
                 .paymentType(paymentTypes.get(random.nextInt(paymentTypes.size())))
                 .delivery(deliveryType.get(random.nextInt(deliveryType.size())))
                 .address(address.get(random.nextInt(address.size())))
                 .city(cities.get(random.nextInt(cities.size())))
                 .deliveryFee(deliveryFees.get(random.nextInt(deliveryFees.size())))
                 .build();
+
+        return savePaymentAndDeliveryEntity(paymentAndDelivery);
     }
 
-    private PaymentAndDelivery savePaymentAndDeliveryEntity(PaymentAndDelivery paymentAndDelivery) {
-        paymentAndDeliveryRepository.save(paymentAndDelivery);
-        return paymentAndDelivery;
+    private PaymentAndDeliveryDto savePaymentAndDeliveryEntity(PaymentAndDeliveryDto paymentAndDeliveryDto) {
+        return paymentAndDeliveryService.save(paymentAndDeliveryDto);
     }
 }

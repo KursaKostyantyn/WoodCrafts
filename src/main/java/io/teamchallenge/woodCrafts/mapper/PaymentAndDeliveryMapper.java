@@ -5,7 +5,9 @@ import io.teamchallenge.woodCrafts.models.dto.PaymentAndDeliveryDto;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface PaymentAndDeliveryMapper  {
-    PaymentAndDelivery toEntity(PaymentAndDeliveryDto paymentAndDeliveryDto);
-    PaymentAndDeliveryDto toModel(PaymentAndDelivery paymentAndDelivery);
+public interface PaymentAndDeliveryMapper {
+
+    PaymentAndDeliveryDto paymentAndDeliveryToPaymentAndDeliveryDto(PaymentAndDelivery paymentAndDelivery);
+
+    PaymentAndDelivery paymentAndDeliveryDtoToPaymentAndDelivery(PaymentAndDeliveryDto paymentAndDeliveryDto);
 }

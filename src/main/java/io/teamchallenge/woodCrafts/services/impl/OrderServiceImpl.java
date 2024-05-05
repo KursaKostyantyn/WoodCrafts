@@ -35,11 +35,13 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductLineService productLineService;
+    private final OrderMapper orderMapper;
+    private final ProductLineMapper productLineMapper;
 
     @Transactional
     @Override
     public ResponseEntity<Void> save(OrderDto orderDto) {
-        Order order = OrderMapper.convertOrderDtoToOrder(orderDto);
+        Order order = orderMapper.orderDtoToOrder(orderDto);
         List<ProductLine> productLines = productLineService.getListOfProductLinesFromListOfProductLinesDto(orderDto.getProductLines());
 
         productLines.forEach(productLine -> productLine.setOrder(order));
@@ -49,91 +51,35 @@ public class OrderServiceImpl implements OrderService {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Transactional
     @Override
     public ResponseEntity<OrderDto> getOrderById(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Order with id='%s' not found", id)));
-        OrderDto orderDto = OrderMapper.convertOrderToOrderDto(order);
+        OrderDto orderDto = orderMapper.orderToOrderDto(order);
         List<ProductLineDto> productLineDtos = order.getProductLines().stream()
-                .map(ProductLineMapper::convertProductLineToProductLineDto)
+                .map(productLineMapper::productLineToProductLineDto)
                 .collect(Collectors.toList());
         orderDto.setProductLines(productLineDtos);
         return ResponseEntity.status(HttpStatus.OK).body(orderDto);
     }
 
+    @Transactional
     @Override
     public ResponseEntity<Void> updateOrderById(Long id, OrderDto orderDto) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Order with id='%s' not found", id)));
-        List<ProductLine> productLines = productLineService.updateProductLines(orderDto.getProductLines(), order);
+//        List<ProductLine> productLines = productLineService.updateProductLines(orderDto.getProductLines(), order);
         order.setAddress(orderDto.getAddress());
-        order.setStatus(Status.valueOf(orderDto.getStatus()));
+        order.setStatus(Status.getStatusByRepresentationStatus(orderDto.getStatus()));
         order.setDeleted(orderDto.getDeleted());
-        order.setProductLines(productLines);
+//        order.setProductLines(productLines);
 
         orderRepository.save(order);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-//@Override
-//    public ResponseEntity<Void> updateOrderById(Long id, Map<String, String> updates) {
-//        Order order = orderRepository.findById(id)
-//                .orElseThrow(() -> new EntityNotFoundException(String.format("Order with id='%s' not found", id)));
-//        List<ProductLine> productLines = productLineService.updateProductLines(orderDto.getProductLinesDto(), order);
-//    updates.forEach((key,value)->{
-//        try {
-//            switch (key){
-//                case "address":
-//                    order.setAddress(value);
-//                    break;
-//                case "status":
-//                    order.setStatus(Status.valueOf(value));
-//                    break;
-//                case "deleted":
-//                    Boolean deleted = Boolean.valueOf(value);
-//                    order.setDeleted(deleted);
-//                    break;
-//                case "totalPrice":
-//                    Double totalPrice = Double.valueOf(value);
-//                    order.setTotalPrice(totalPrice);
-//            }
-//
-//
-//
-//        } catch (NumberFormatException ex){
-//            throw new UpdatesNumberFormatException(String.format("Wrong format for field '%s'", key));
-//        }
-//    });
-//        order.setProductLines(productLines);
-//
-//        orderRepository.save(order);
-//
-//        return ResponseEntity.status(HttpStatus.OK).build();
-//    }
 
-//    @Override
-//    public ResponseEntity<PageWrapperDto<OrderDto>> getAllOrders(PageRequest of, boolean isDeleted) {
-//        Page<Order> orderPage = orderRepository.findAllByDeleted(isDeleted, of);
-//        PageWrapperDto<OrderDto> pageWrapperDto = new PageWrapperDto<>();
-//        pageWrapperDto.setData(orderPage.getContent().stream().map(OrderMapper::convertOrderToOrderDto).collect(Collectors.toList()));
-//        pageWrapperDto.setTotalPages(orderPage.getTotalPages());
-//        pageWrapperDto.setTotalItems(orderPage.getTotalElements());
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(pageWrapperDto);
-//    }
-
-//    @Override
-//    public ResponseEntity<Void> deleteOrders(List<OrderDto> orderIds) {
-//        List<Order> orders = new ArrayList<>();
-//        orderIds.forEach(orderDto -> {
-//            Order order = orderRepository.findById(orderDto.getId())
-//                    .orElseThrow(() -> new EntityNotFoundException(String.format("Order with id='%s' not found", orderDto.getId())));
-//            order.setDeleted(true);
-//            orders.add(order);
-//        });
-//        orderRepository.saveAll(orders);
-//        return ResponseEntity.status(HttpStatus.OK).build();
-//    }
-
+    @Transactional
     @Override
     public ResponseEntity<Void> deleteOrders(List<ObjectNode> orderIds) {
         List<Order> orders = new ArrayList<>();
@@ -151,6 +97,7 @@ public class OrderServiceImpl implements OrderService {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Transactional
     @Override
     public ResponseEntity<PageWrapperDto<OrderDto>> getOrders(
             PageRequest pageRequest,
@@ -172,7 +119,8 @@ public class OrderServiceImpl implements OrderService {
                 .filterOrders(isDeleted, fromDate, toDate, minTotal, maxTotal, status);
         Page<Order> filteredOrderPage = orderRepository.findAll(specification, pageRequest);
         PageWrapperDto<OrderDto> pageWrapperDto = new PageWrapperDto<>();
-        List<OrderDto> collect = filteredOrderPage.getContent().stream().map(OrderMapper::convertOrderToOrderDto).collect(Collectors.toList());
+        List<OrderDto> collect = filteredOrderPage.getContent().stream()
+                .map(orderMapper::orderToOrderDto).collect(Collectors.toList());
         pageWrapperDto.setData(collect);
         pageWrapperDto.setTotalPages(filteredOrderPage.getTotalPages());
         pageWrapperDto.setTotalItems(filteredOrderPage.getTotalElements());

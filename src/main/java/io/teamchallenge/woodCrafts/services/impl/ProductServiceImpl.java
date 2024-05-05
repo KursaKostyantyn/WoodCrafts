@@ -17,8 +17,8 @@ import io.teamchallenge.woodCrafts.repository.ProductRepository;
 import io.teamchallenge.woodCrafts.services.api.ProductService;
 import io.teamchallenge.woodCrafts.utils.JacksonUtils;
 import io.teamchallenge.woodCrafts.utils.ProductSpecificationsUtils;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -42,10 +42,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -53,11 +52,12 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ColorRepository colorRepository;
     private final MaterialRepository materialRepository;
+    private final ProductMapper productMapper;
 
     @Transactional
     @Override
     public ResponseEntity<Void> save(ProductDto productDto) {
-        Product product = ProductMapper.convertProductDtoToProduct(productDto);
+        Product product = productMapper.productDtoToProduct(productDto);
         Category category = categoryRepository.findById(productDto.getCategoryId()).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", productDto.getCategoryId())));
         product.setCategory(category);
         Color color = colorRepository.findById(productDto.getColorId()).orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", productDto.getColorId())));
@@ -78,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
             products.add(product);
         });
         Comparator<ProductDto> comparator = createComparator(sortBy, direction);
-        List<ProductDto> productDtos = products.stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
+        List<ProductDto> productDtos = products.stream().map(productMapper::productToProductDto).collect(Collectors.toList());
         productDtos.sort(comparator);
         return ResponseEntity.status(HttpStatus.OK).body(productDtos);
     }
@@ -87,7 +87,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
-        return ProductMapper.convertProductToProductDto(product);
+        return productMapper.productToProductDto(product);
     }
 
     @Transactional
@@ -214,7 +214,7 @@ public class ProductServiceImpl implements ProductService {
                 .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted, inStock, notAvailable, name, fromDate, toDate);
         Page<Product> filteredProductsPage = productRepository.findAll(specification, pageRequest);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
-        List<ProductDto> collect = filteredProductsPage.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
+        List<ProductDto> collect = filteredProductsPage.getContent().stream().map(productMapper::productToProductDto).collect(Collectors.toList());
         pageWrapperDto.setData(collect);
         pageWrapperDto.setTotalPages(filteredProductsPage.getTotalPages());
         pageWrapperDto.setTotalItems(filteredProductsPage.getTotalElements());
@@ -227,7 +227,7 @@ public class ProductServiceImpl implements ProductService {
                                                                             boolean isAvailable) {
         Page<Product> productsByName = productRepository.findAllByNameContainingIgnoreCaseAndDeleted(pageRequest, name, isAvailable);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
-        pageWrapperDto.setData(productsByName.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList()));
+        pageWrapperDto.setData(productsByName.getContent().stream().map(productMapper::productToProductDto).collect(Collectors.toList()));
         pageWrapperDto.setTotalPages(productsByName.getTotalPages());
         pageWrapperDto.setTotalItems(productsByName.getTotalElements());
 

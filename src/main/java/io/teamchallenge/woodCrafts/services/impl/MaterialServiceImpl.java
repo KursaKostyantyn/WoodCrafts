@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class MaterialServiceImpl implements MaterialService {
 
     private final MaterialRepository materialRepository;
+    private final MaterialMapper materialMapper;
 
     @Transactional
     @Override
@@ -30,7 +31,7 @@ public class MaterialServiceImpl implements MaterialService {
         if (existingMaterial.isPresent()) {
             throw new DuplicateException(String.format("Material with name='%s' already exists", materialDto.getName()));
         }
-        Material material = MaterialMapper.convertMaterialDtoToMaterial(materialDto);
+        Material material = materialMapper.materialDtoToMaterial(materialDto);
         materialRepository.save(material);
 
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -40,7 +41,7 @@ public class MaterialServiceImpl implements MaterialService {
     public ResponseEntity<MaterialDto> findMaterialById(Long id) {
         Material material = materialRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", id)));
 
-        return ResponseEntity.status(HttpStatus.OK).body(MaterialMapper.convertMaterialToMaterialDto(material));
+        return ResponseEntity.status(HttpStatus.OK).body(materialMapper.materialToMaterialDto(material));
     }
 
     @Override
@@ -70,7 +71,7 @@ public class MaterialServiceImpl implements MaterialService {
     public ResponseEntity<List<MaterialDto>> findAllMaterials(boolean isDeleted) {
         List<MaterialDto> materials = materialRepository.findAllByDeleted(isDeleted)
                 .stream()
-                .map(MaterialMapper::convertMaterialToMaterialDto)
+                .map(materialMapper::materialToMaterialDto)
                 .collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(materials);

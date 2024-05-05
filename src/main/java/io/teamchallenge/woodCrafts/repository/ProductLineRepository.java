@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ProductLineRepository extends JpaRepository<ProductLine, Long> {
-    List<ProductLine> findProductLinesByOrder (Order order);
+    List<ProductLine> findProductLinesByOrder(Order order);
 }

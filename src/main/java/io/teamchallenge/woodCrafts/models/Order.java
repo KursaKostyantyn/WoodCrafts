@@ -102,7 +102,8 @@ public class Order {
     @Builder.Default
     private String comment = "";
 
-//    @OneToOne
-//    @JoinColumn(name = "payment_and_delivery_id", referencedColumnName = "id")
-//    private PaymentAndDelivery paymentAndDelivery;
+    @OneToOne
+    @JoinColumn(name = "payment_and_delivery_id", referencedColumnName = "id")
+    @ToString.Exclude
+    private PaymentAndDelivery paymentAndDelivery;
 }

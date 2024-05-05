@@ -1,39 +1,18 @@
 package io.teamchallenge.woodCrafts.mapper;
 
 import io.teamchallenge.woodCrafts.models.ProductLine;
-import io.teamchallenge.woodCrafts.models.dto.ProductDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductLineDto;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductLineMapper {
+@Mapper(componentModel = "spring")
+public interface ProductLineMapper {
+    ProductLineDto productLineToProductLineDto(ProductLine productLine);
 
-    public static ProductLine convertProductLineDtoToProductLine(ProductLineDto productLineDto) {
-        ModelMapper modelMapper = new ModelMapper();
+    ProductLine productLineDtoToProductLine(ProductLineDto productLineDto);
 
-        return modelMapper.map(productLineDto, ProductLine.class);
-    }
-
-    public static ProductLineDto convertProductLineToProductLineDto(ProductLine productLine) {
-        ModelMapper modelMapper = new ModelMapper();
-        ProductDto productDto = ProductMapper.convertProductToProductDto(productLine.getProduct());
-        ProductLineDto productLineDto = modelMapper.map(productLine, ProductLineDto.class);
-        productLineDto.setProduct(productDto);
-        return productLineDto;
-    }
-
-    public static void updateProductLineFromProductLineDto(ProductLine productLine, ProductLineDto productLineDto) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        modelMapper.typeMap(ProductLineDto.class, ProductLine.class)
-                .addMappings(mapper -> {
-                    mapper.skip(ProductLine::setProduct);
-                    mapper.skip(ProductLine::setOrder);
-                });
-        modelMapper.map(productLineDto, productLine);
-    }
-
+    @Mapping(target = "product", ignore = true)
+    @Mapping(target = "order", ignore = true)
+    void updateProductLineFromProductLineDto(@MappingTarget ProductLine productLine, ProductLineDto productLineDto);
 }

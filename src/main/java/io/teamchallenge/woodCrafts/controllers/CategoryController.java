@@ -30,29 +30,33 @@ public class CategoryController {
 
     @PostMapping("/categories")
     public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
-        return categoryService.save(categoryDto);
+        categoryService.save(categoryDto);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/categories/{id}")
     public ResponseEntity<CategoryDto> findCategoryById(@PathVariable @Min(1) Long id) {
-        return categoryService.findCategoryById(id);
+        return ResponseEntity.ok(categoryService.findCategoryById(id));
     }
 
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteCategoryById(@PathVariable @Min(1) Long id) {
-        return categoryService.deleteCategoryById(id);
+        categoryService.deleteCategoryById(id);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/categories/{id}")
     public ResponseEntity<Void> updateCategoryById(@Valid @RequestBody CategoryDto categoryDto,
                                                    @PathVariable @Min(1) Long id) {
-        return categoryService.updateCategoryById(categoryDto, id);
+        categoryService.updateCategoryById(categoryDto, id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryDto>> getAllCategories(
             @RequestParam(required = false, defaultValue = "false") boolean isDeleted
     ) {
-        return categoryService.getAllCategories(isDeleted);
+        List<CategoryDto> Categories = categoryService.getAllCategories(isDeleted);
+        return ResponseEntity.ok(Categories);
     }
 }
