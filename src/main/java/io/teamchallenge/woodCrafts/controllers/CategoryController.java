@@ -29,14 +29,14 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/categories")
-    public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
-        categoryService.save(categoryDto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<CategoryDto> save(@Valid @RequestBody CategoryDto categoryDto) {
+        CategoryDto category = categoryService.save(categoryDto);
+        return ResponseEntity.ok(category);
     }
 
     @GetMapping("/categories/{id}")
-    public ResponseEntity<CategoryDto> findCategoryById(@PathVariable @Min(1) Long id) {
-        return ResponseEntity.ok(categoryService.findCategoryById(id));
+    public ResponseEntity<CategoryDto> findById(@PathVariable @Min(1) Long id) {
+        return ResponseEntity.ok(categoryService.findById(id));
     }
 
     @DeleteMapping("/categories/{id}")
@@ -46,10 +46,10 @@ public class CategoryController {
     }
 
     @PatchMapping("/categories/{id}")
-    public ResponseEntity<Void> updateCategoryById(@Valid @RequestBody CategoryDto categoryDto,
-                                                   @PathVariable @Min(1) Long id) {
-        categoryService.updateCategoryById(categoryDto, id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<CategoryDto> updateCategoryById(@Valid @RequestBody CategoryDto categoryDto,
+                                                          @PathVariable @Min(1) Long id) {
+        CategoryDto category = categoryService.updateCategoryById(categoryDto, id);
+        return ResponseEntity.ok(category);
     }
 
     @GetMapping("/categories")

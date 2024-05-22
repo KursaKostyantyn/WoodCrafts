@@ -55,6 +55,10 @@ public class JacksonUtils {
         }
     }
 
+    public static ObjectNode createNewObjectNod() {
+        return OBJECT_MAPPER.createObjectNode();
+    }
+
     public static List<String> toStringList(JsonNode photosNode) {
         List<String> photos = new ArrayList<>();
         for (JsonNode node : photosNode) {

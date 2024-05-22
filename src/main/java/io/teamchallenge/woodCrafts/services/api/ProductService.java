@@ -6,30 +6,21 @@ import io.teamchallenge.woodCrafts.models.dto.ProductDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface ProductService {
 
-    ResponseEntity<Void> save(ProductDto productDto);
+    ProductDto save(ProductDto productDto);
 
-    ResponseEntity<List<ProductDto>> getProductsById(List<Long> ids, String sortBy, Sort.Direction direction);
+    List<ProductDto> getProductsById(List<Long> ids, String sortBy, Sort.Direction direction);
 
     ProductDto getProductById(Long id);
 
-    ResponseEntity<Void> deleteProductById(Long id);
+    ProductDto updateProductById(ProductDto updates, Long id);
 
-    //    ResponseEntity<Void> updateProductById(ProductDto productDto, Long id);
-//    ResponseEntity<Void> updateProductById(Map<String,String> updates, Long id);
-    ResponseEntity<Void> updateProductById(ObjectNode updates, Long id);
-
-    ResponseEntity<Void> importListOfProducts(MultipartFile productsFile);
-
-//    ResponseEntity<PageWrapperDto<ProductDto>> findAllProducts(PageRequest pageRequest,boolean isDeleted);
-
-    ResponseEntity<PageWrapperDto<ProductDto>> getProducts
+    PageWrapperDto<ProductDto> getProducts
             (
                     PageRequest pageRequest,
                     List<Long> categoryIds,
@@ -47,6 +38,5 @@ public interface ProductService {
 
     ResponseEntity<PageWrapperDto<ProductDto>> findAllProductsByName(PageRequest pageRequest, String name, boolean isAvailable);
 
-    //    ResponseEntity<Void> deleteProductList(List<ProductDto> productDtoList);
     ResponseEntity<Void> deleteProductList(List<ObjectNode> productDtoList);
 }

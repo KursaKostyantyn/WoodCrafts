@@ -24,46 +24,47 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public void save(CategoryDto categoryDto) {
+    public CategoryDto save(CategoryDto categoryDto) {
         Optional<Category> existingCategory = categoryRepository.findByName(categoryDto.getName());
         if (existingCategory.isPresent()) {
             throw new DuplicateException(String.format("Category with name='%s' already exists", categoryDto.getName()));
         }
         Category category = categoryMapper.categoryDtoToCategory(categoryDto);
-        categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
+        return categoryMapper.categoryToCategoryDto(savedCategory);
     }
 
     @Transactional
     @Override
-    public CategoryDto findCategoryById(Long id) {
+    public CategoryDto findById(Long id) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", id)));
         return categoryMapper.categoryToCategoryDto(category);
     }
 
     @Override
     @Transactional
-    public void deleteCategoryById(Long id) {
+    public CategoryDto deleteCategoryById(Long id) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", id)));
         category.setDeleted(true);
-        categoryRepository.save(category);
+        Category updatedCategory = categoryRepository.save(category);
+        return categoryMapper.categoryToCategoryDto(updatedCategory);
     }
 
     @Transactional
     @Override
-    public void updateCategoryById(CategoryDto categoryDto, Long id) {
+    public CategoryDto updateCategoryById(CategoryDto categoryDto, Long id) {
         Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", id)));
         categoryMapper.updateCategoryFromCategoryDto(category, categoryDto);
         categoryRepository.save(category);
+        return categoryMapper.categoryToCategoryDto(category);
     }
 
     @Transactional
     @Override
     public List<CategoryDto> getAllCategories(boolean isDeleted) {
         List<Category> categories = categoryRepository.findAllByDeleted(isDeleted);
-        List<CategoryDto> categoryDtos = categories.stream()
+        return categories.stream()
                 .map(categoryMapper::categoryToCategoryDto)
                 .collect(Collectors.toList());
-
-        return categoryDtos;
     }
 }
