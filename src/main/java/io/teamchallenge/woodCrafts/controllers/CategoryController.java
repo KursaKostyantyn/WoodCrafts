@@ -2,49 +2,61 @@ package io.teamchallenge.woodCrafts.controllers;
 
 import io.teamchallenge.woodCrafts.models.dto.CategoryDto;
 import io.teamchallenge.woodCrafts.services.api.CategoryService;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 
 @RestController
-@RequiredArgsConstructor
-@RequestMapping("/categories")
+@Validated
+@AllArgsConstructor
+@RequestMapping()
 public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @PostMapping("/save")
-    public ResponseEntity<Void> saveCategory(@RequestBody CategoryDto categoryDto) {
-        return categoryService.saveCategory(categoryDto);
+    @PostMapping("/categories")
+    public ResponseEntity<CategoryDto> save(@Valid @RequestBody CategoryDto categoryDto) {
+        CategoryDto category = categoryService.save(categoryDto);
+        return ResponseEntity.ok(category);
     }
 
-    @GetMapping("/findById")
-    public ResponseEntity<CategoryDto> findCategoryById(@RequestParam Long id) {
-        return categoryService.findCategoryById(id);
+    @GetMapping("/categories/{id}")
+    public ResponseEntity<CategoryDto> findById(@PathVariable @Min(1) Long id) {
+        return ResponseEntity.ok(categoryService.findById(id));
     }
 
-    @DeleteMapping("/deleteById")
-    public ResponseEntity<Void> deleteCategoryById(@RequestParam Long id) {
-        return categoryService.deleteCategoryById(id);
+    @DeleteMapping("/categories/{id}")
+    public ResponseEntity<Void> deleteCategoryById(@PathVariable @Min(1) Long id) {
+        categoryService.deleteCategoryById(id);
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/updateById")
-    public ResponseEntity<Void> updateCategoryById(@RequestBody CategoryDto categoryDto, @RequestParam Long id) {
-        return categoryService.updateCategoryById(categoryDto, id);
+    @PatchMapping("/categories/{id}")
+    public ResponseEntity<CategoryDto> updateCategoryById(@Valid @RequestBody CategoryDto categoryDto,
+                                                          @PathVariable @Min(1) Long id) {
+        CategoryDto category = categoryService.updateCategoryById(categoryDto, id);
+        return ResponseEntity.ok(category);
     }
 
-    @GetMapping("/getAll")
-    public ResponseEntity<List<CategoryDto>> getAllCategories() {
-        return categoryService.getAllCategories();
+    @GetMapping("/categories")
+    public ResponseEntity<List<CategoryDto>> getAllCategories(
+            @RequestParam(required = false, defaultValue = "false") boolean isDeleted
+    ) {
+        List<CategoryDto> Categories = categoryService.getAllCategories(isDeleted);
+        return ResponseEntity.ok(Categories);
     }
 }

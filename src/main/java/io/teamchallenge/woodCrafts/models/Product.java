@@ -1,14 +1,16 @@
 package io.teamchallenge.woodCrafts.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -18,13 +20,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -39,61 +45,73 @@ public class Product {
 
     @Column(name = "price", nullable = false)
     @NotNull
-    private double price;
+    @Builder.Default
+    private Double price = 0.0;
 
     @Column(name = "name", nullable = false)
     @NotNull
-    private String name;
+    @Builder.Default
+    private String name = "";
 
-    @Column(name = "description")
+    @Column(name = "description", length = 1200)
     @NotNull
-    private String description;
+    @Builder.Default
+    private String description = "";
 
     @ElementCollection
     @CollectionTable(name = "photos", joinColumns = @JoinColumn(name = "photo_id"))
     @Column(name = "photos")
-    private List<String> photos;
+    @Builder.Default
+    private List<String> photos = new ArrayList<>();
 
     @ManyToOne
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
-    @JoinColumn (name = "color_id", referencedColumnName = "id")
-    @NotNull
+    @Cascade(CascadeType.SAVE_UPDATE)
+    @JoinColumn(name = "color_id", referencedColumnName = "id")
     private Color color;
 
     @Column(name = "weight")
     @NotNull
-    private double weight;
+    @PositiveOrZero
+    @Builder.Default
+    private Double weight = 0.0;
 
     @Column(name = "height")
     @NotNull
-    private double height;
+    @PositiveOrZero
+    @Builder.Default
+    private Double height = 0.0;
 
     @Column(name = "length")
     @NotNull
-    private double length;
+    @PositiveOrZero
+    @Builder.Default
+    private Double length = 0.0;
 
-    @Column(name = "wight")
+    @Column(name = "width")
     @NotNull
-    private double wight;
+    @PositiveOrZero
+    @Builder.Default
+    private Double width = 0.0;
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
-    @NotNull
     @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private Category category;
 
     @Column(name = "quantity")
     @NotNull
-    private int quantity;
+    @PositiveOrZero
+    @Builder.Default
+    private Integer quantity = 0;
 
     @Column(name = "warranty")
     @NotNull
-    private int warranty;
+    @Builder.Default
+    private Integer warranty = 0;
 
     @ManyToOne
     @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "material_id", referencedColumnName = "id")
-    @NotNull
     private Material material;
 
     @Column(name = "creation_date")
@@ -103,4 +121,14 @@ public class Product {
     @Column(name = "update_date")
     @UpdateTimestamp
     private LocalDateTime updateDate;
+
+
+    @Column(name = "deleted")
+    @Builder.Default
+    private Boolean deleted = false;
+
+    @OneToMany(mappedBy = "product")
+    @ToString.Exclude
+    @Builder.Default
+    private List<ProductLine> productLines = new ArrayList<>();
 }

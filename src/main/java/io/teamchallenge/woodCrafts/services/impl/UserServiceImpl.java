@@ -7,16 +7,21 @@ import io.teamchallenge.woodCrafts.repository.UserRepository;
 import io.teamchallenge.woodCrafts.services.api.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
+    @Transactional
     @Override
     public void saveUser(UserDto userDto) {
-        User user = UserMapper.convertUserDtoToUser(userDto);
+        User user = userMapper.userDtoToUser(userDto);
 
         userRepository.save(user);
     }
@@ -25,6 +30,11 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserByEmail(String email) {
         User user = userRepository.getUserByEmail(email);
 
-        return UserMapper.convertUserToUserDto(user);
+        return userMapper.userToUserDto(user);
+    }
+
+    @Override
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
     }
 }

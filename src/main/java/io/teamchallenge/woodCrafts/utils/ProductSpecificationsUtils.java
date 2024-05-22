@@ -7,8 +7,8 @@ import io.teamchallenge.woodCrafts.models.Product;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Predicate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ProductSpecificationsUtils {
@@ -19,7 +19,13 @@ public class ProductSpecificationsUtils {
                     List<Color> colors,
                     List<Material> materials,
                     int minPrice,
-                    int maxPrice
+                    int maxPrice,
+                    boolean isDeleted,
+                    boolean inStock,
+                    boolean notAvailable,
+                    String name,
+                    LocalDateTime dateFrom,
+                    LocalDateTime dateTo
             ) {
         return ((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -30,13 +36,30 @@ public class ProductSpecificationsUtils {
             if (colors != null && !colors.isEmpty()) {
                 predicates.add(root.get("color").in(colors));
             }
-            if (materials!=null && !materials.isEmpty()){
+            if (materials != null && !materials.isEmpty()) {
                 predicates.add(root.get("material").in(materials));
+            }
+            if (inStock && !notAvailable) {
+                predicates.add(criteriaBuilder.greaterThan(root.get("quantity"), 0));
+            }
+            if (!inStock && notAvailable) {
+                predicates.add(criteriaBuilder.equal(root.get("quantity"), 0));
+            }
+            if (dateFrom != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("creationDate"), dateFrom));
+            }
+            if (dateTo != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("creationDate"), dateTo));
+            }
+            if (name != null) {
+                predicates.add(criteriaBuilder.like(root.get("name"), "%" + name + "%"));
             }
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice));
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice));
+            predicates.add(criteriaBuilder.equal(root.get("deleted"), isDeleted));
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
     }
+
 }

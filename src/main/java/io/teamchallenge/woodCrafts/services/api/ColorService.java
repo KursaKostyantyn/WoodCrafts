@@ -7,14 +7,14 @@ import java.util.List;
 
 public interface ColorService {
 
-    ResponseEntity<Void> saveColor (ColorDto colorDto);
+    ResponseEntity<Void> save(ColorDto colorDto);
 
-    ResponseEntity<ColorDto> findColorById(Long id);
+    ResponseEntity<ColorDto> findColorById(Long colorId);
 
-    ResponseEntity<Void> deleteColorById(Long id);
+    ResponseEntity<Void> deleteColorById(Long colorId);
 
     ResponseEntity<Void> updateColorById (ColorDto colorDto, Long id);
 
-    ResponseEntity<List<ColorDto>> getAllColors();
+    ResponseEntity<List<ColorDto>> getAllColors(boolean isDeleted);
 
 }

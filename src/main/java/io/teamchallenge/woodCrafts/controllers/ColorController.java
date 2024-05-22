@@ -6,44 +6,50 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/colors")
+@RequestMapping()
 public class ColorController {
 
     private final ColorService colorService;
 
-    @PostMapping("/create")
-    public ResponseEntity<Void> saveColor(@RequestBody ColorDto colorDto) {
-        return colorService.saveColor(colorDto);
+    @PostMapping("colors")
+    public ResponseEntity<Void> createColor(@Valid @RequestBody ColorDto colorDto) {
+        return colorService.save(colorDto);
     }
 
-    @GetMapping("/findById")
-    public ResponseEntity<ColorDto> findColorById(@RequestParam Long id) {
+    @GetMapping("colors/{id}")
+    public ResponseEntity<ColorDto> findColorById(@PathVariable Long id) {
         return colorService.findColorById(id);
     }
 
-    @DeleteMapping("/deleteById")
-    public ResponseEntity<Void> deleteColorById(@RequestParam Long id) {
+    @DeleteMapping("colors/{id}")
+    public ResponseEntity<Void> deleteColorById(@PathVariable Long id) {
         return colorService.deleteColorById(id);
     }
 
-    @PutMapping("/updateById")
-    public ResponseEntity<Void> updateColorById(@RequestBody ColorDto colorDto, @RequestParam Long id) {
+    @PatchMapping("colors/{id}")
+    public ResponseEntity<Void> updateColorById(
+            @Valid
+            @RequestBody ColorDto colorDto,
+            @PathVariable Long id
+    ) {
         return colorService.updateColorById(colorDto, id);
     }
 
-    @GetMapping("/getAllColors")
-    public ResponseEntity<List<ColorDto>> getAllColors() {
-        return colorService.getAllColors();
+    @GetMapping("colors")
+    public ResponseEntity<List<ColorDto>> getAllColors(@RequestParam(required = false, defaultValue = "false") boolean isDeleted) {
+        return colorService.getAllColors(isDeleted);
     }
 }

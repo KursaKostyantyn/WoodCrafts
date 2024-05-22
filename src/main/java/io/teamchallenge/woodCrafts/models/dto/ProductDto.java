@@ -1,12 +1,16 @@
 package io.teamchallenge.woodCrafts.models.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,22 +21,48 @@ import java.util.List;
 @ToString
 public class ProductDto {
 
-    private Long id;
-    private double price;
+    private String id;
+    @Min(value = 0, message = "Price cannot be less than 0")
+    private Double price;
+    @NotBlank(message = "Name cannot be blank")
     private String name;
+    @NotBlank(message = "Description cannot be blank")
     private String description;
     private List<String> photos;
+    @Min(value = 0, message = "ColorId  must be 1 or more")
     private Long colorId;
-    private double weight;
-    private double height;
-    private double length;
-    private double width;
+    @Min(value = 0, message = "Weight cannot be less than 0")
+    private Double weight;
+    @Min(value = 0, message = "Height cannot be less than 0")
+    private Double height;
+    @Min(value = 0, message = "Length cannot be less than 0")
+    private Double length;
+    @Min(value = 0, message = "Width cannot be less than 0")
+    private Double width;
+    @Min(1)
     private Long categoryId;
-    private int quantity;
-    private int warranty;
+    @Min(value = 0, message = "Quantity cannot be less than 0")
+    private Integer quantity;
+    private Integer warranty;
+    @Min(value = 1, message = "MaterialId must be 1 or more")
     private Long materialId;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    private Boolean deleted;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    @JsonIgnore
     private LocalDateTime creationDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    @JsonIgnore
     private LocalDateTime updateDate;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    @JsonProperty("creationDate")
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+    @JsonProperty("updateDate")
+    public LocalDateTime getUpdateDate() {
+        return updateDate;
+    }
 }

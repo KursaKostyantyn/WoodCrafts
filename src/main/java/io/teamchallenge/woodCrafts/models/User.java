@@ -1,7 +1,10 @@
 package io.teamchallenge.woodCrafts.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,10 +14,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-@RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -34,6 +42,7 @@ public class User {
     private String secondName;
 
     @Column(name = "email", unique = true)
+    @NonNull
     private String email;
 
     @Column(name = "phone")
@@ -43,8 +52,15 @@ public class User {
     private String address;
 
     @CreationTimestamp
-    private LocalDateTime registrationDate;
+    private LocalDate registrationDate;
 
     @Column(name = "password")
+    @NonNull
     private String password;
+
+    @Column(name = "order")
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    @Builder.Default
+    private List<Order> orders = new ArrayList<>();
 }

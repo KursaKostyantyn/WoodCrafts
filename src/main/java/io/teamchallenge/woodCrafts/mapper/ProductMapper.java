@@ -1,37 +1,74 @@
 package io.teamchallenge.woodCrafts.mapper;
 
+import io.teamchallenge.woodCrafts.exception.EntityNotFoundException;
+import io.teamchallenge.woodCrafts.models.Category;
+import io.teamchallenge.woodCrafts.models.Color;
+import io.teamchallenge.woodCrafts.models.Material;
 import io.teamchallenge.woodCrafts.models.Product;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
+import io.teamchallenge.woodCrafts.repository.CategoryRepository;
+import io.teamchallenge.woodCrafts.repository.ColorRepository;
+import io.teamchallenge.woodCrafts.repository.MaterialRepository;
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.stereotype.Component;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductMapper {
+@Mapper(componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        uses = {
+                CategoryMapper.class,
+                ColorMapper.class,
+                MaterialMapper.class,
+                ProductMapper.EntityLoader.class
+        })
+public interface ProductMapper {
+    @Mapping(source = "color.id", target = "colorId")
+    @Mapping(source = "material.id", target = "materialId")
+    @Mapping(source = "category.id", target = "categoryId")
+    ProductDto productToProductDto(Product product);
 
-    public static Product convertProductDtoToProduct(ProductDto productDto) {
-        ModelMapper modelMapper = new ModelMapper();
+    @Mapping(source = "categoryId", target = "category", qualifiedByName = "findCategoryById")
+    @Mapping(source = "materialId", target = "material", qualifiedByName = "findMaterialById")
+    @Mapping(source = "colorId", target = "color", qualifiedByName = "findColorById")
+    Product productDtoToProduct(ProductDto productDto);
 
-        return modelMapper.map(productDto, Product.class);
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "categoryId", target = "category", qualifiedByName = "findCategoryById")
+    @Mapping(source = "materialId", target = "material", qualifiedByName = "findMaterialById")
+    @Mapping(source = "colorId", target = "color", qualifiedByName = "findColorById")
+    void updateProductFromProductDto(@MappingTarget Product product, ProductDto productDto);
 
-    public static ProductDto convertProductToProductDto(Product product) {
-        ModelMapper modelMapper = new ModelMapper();
 
-        return modelMapper.map(product, ProductDto.class);
-    }
+    @RequiredArgsConstructor
+    @Component
+    class EntityLoader {
 
-    public static void updateProductFromProductDto(ProductDto productDto, Product product) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        modelMapper.typeMap(ProductDto.class, Product.class)
-                .addMappings(mapper -> {
-                    mapper.skip(Product::setCategory);
-                    mapper.skip(Product::setColor);
-                    mapper.skip(Product::setMaterial);
-                    mapper.skip(Product::setCreationDate);
-                });
-        modelMapper.map(productDto, product);
+        private final CategoryRepository categoryRepository;
+
+        private final MaterialRepository materialRepository;
+
+        private final ColorRepository colorRepository;
+
+        @Named("findCategoryById")
+        public Category findCategoryById(Long id) {
+            return categoryRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found with id " + id));
+        }
+
+        @Named("findMaterialById")
+        public Material findMaterialById(Long id) {
+            return materialRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Material not found with id " + id));
+        }
+
+        @Named("findColorById")
+        public Color findColorById(Long id) {
+            return colorRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Color not found with id " + id));
+        }
     }
 }
