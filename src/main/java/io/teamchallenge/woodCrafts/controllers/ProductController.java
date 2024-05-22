@@ -37,8 +37,9 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping("/products")
-    public ResponseEntity<Void> createProduct(@Valid @RequestBody ProductDto productDto) {
-        return productService.save(productDto);
+    public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto) {
+        ProductDto savedProductDto = productService.save(productDto);
+        return ResponseEntity.ok(savedProductDto);
     }
 
     @GetMapping("/products/byIds")
@@ -47,13 +48,15 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "ASC") Sort.Direction direction
     ) {
-        return productService.getProductsById(ids, sortBy, direction);
+        List<ProductDto> products = productService.getProductsById(ids, sortBy, direction);
+        return ResponseEntity.ok(products);
     }
 
     @PatchMapping("/products/{id}")
-    public ResponseEntity<Void> updateProductById(@RequestBody ObjectNode updates,
-                                                  @PathVariable @Min(1) Long id) {
-        return productService.updateProductById(updates, id);
+    public ResponseEntity<ProductDto> updateProductById(@RequestBody ProductDto updates,
+                                                        @PathVariable @Min(1) Long id) {
+        ProductDto productDto = productService.updateProductById(updates, id);
+        return ResponseEntity.ok(productDto);
     }
 
     @GetMapping("/products")
@@ -74,7 +77,7 @@ public class ProductController {
             @DateTimeFormat(pattern = "dd.MM.yyyy") @RequestParam(required = false, defaultValue = "01.01.2024") LocalDate dateFrom,
             @DateTimeFormat(pattern = "dd.MM.yyyy") @RequestParam(required = false, defaultValue = "01.01.3000") LocalDate dateTo
     ) {
-        return productService.getProducts(
+        PageWrapperDto<ProductDto> products = productService.getProducts(
                 PageRequest.of(page, size, direction, sortBy),
                 categoryIds,
                 colorIds,
@@ -88,6 +91,7 @@ public class ProductController {
                 dateFrom,
                 dateTo
         );
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/products/byName/{name}")

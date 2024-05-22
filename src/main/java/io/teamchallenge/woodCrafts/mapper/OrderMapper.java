@@ -3,32 +3,14 @@ package io.teamchallenge.woodCrafts.mapper;
 import io.teamchallenge.woodCrafts.constants.Status;
 import io.teamchallenge.woodCrafts.models.Order;
 import io.teamchallenge.woodCrafts.models.dto.OrderDto;
-import io.teamchallenge.woodCrafts.models.dto.ProductLineDto;
-import io.teamchallenge.woodCrafts.models.dto.UserDto;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
+import org.mapstruct.Mapper;
 
-import java.util.List;
-import java.util.stream.Collectors;
+@Mapper(componentModel = "spring")
+public interface OrderMapper {
+    OrderDto orderToOrderDto(Order order);
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class OrderMapper {
-    public static Order convertOrderDtoToOrder(OrderDto orderDto) {
-        ModelMapper modelMapper = new ModelMapper();
-        Order order = modelMapper.map(orderDto, Order.class);
-        order.setStatus(Status.getStatusByRepresentationStatus(orderDto.getStatus()));
-        return order;
-    }
-
-    public static OrderDto convertOrderToOrderDto(Order order) {
-        ModelMapper modelMapper = new ModelMapper();
-        List<ProductLineDto> productLineDtos = order.getProductLines().stream().map(ProductLineMapper::convertProductLineToProductLineDto).collect(Collectors.toList());
-        UserDto userDtos = UserMapper.convertUserToUserDto(order.getUser());
-        OrderDto orderDto = modelMapper.map(order, OrderDto.class);
-        orderDto.setProductLines(productLineDtos);
-        orderDto.setStatus(orderDto.getStatus());
-        orderDto.setUser(userDtos);
-        return orderDto;
+    Order orderDtoToOrder(OrderDto orderDto);
+    default Status mapStatusStringToEnum(String statusString) {
+        return Status.getStatusByRepresentationStatus(statusString);
     }
 }

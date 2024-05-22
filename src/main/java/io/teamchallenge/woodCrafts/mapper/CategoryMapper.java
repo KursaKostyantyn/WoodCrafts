@@ -2,22 +2,17 @@ package io.teamchallenge.woodCrafts.mapper;
 
 import io.teamchallenge.woodCrafts.models.Category;
 import io.teamchallenge.woodCrafts.models.dto.CategoryDto;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CategoryMapper {
 
-    public static Category convertCategoryDtoToCategory(CategoryDto categoryDto) {
-        ModelMapper modelMapper = new ModelMapper();
+@Mapper(componentModel = "spring")
+public interface CategoryMapper {
+    Category categoryDtoToCategory(CategoryDto categoryDto);
 
-        return modelMapper.map(categoryDto, Category.class);
-    }
+    CategoryDto categoryToCategoryDto(Category category);
 
-    public static CategoryDto convertCategoryToCategoryDto(Category category) {
-        ModelMapper modelMapper = new ModelMapper();
-
-        return modelMapper.map(category, CategoryDto.class);
-    }
+    @Mapping(target = "id", ignore = true)
+    void updateCategoryFromCategoryDto(@MappingTarget Category category, CategoryDto categoryDto);
 }

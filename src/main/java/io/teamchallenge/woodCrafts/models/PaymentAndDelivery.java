@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,6 +40,7 @@ public class PaymentAndDelivery {
     @Column(name = "deliveryFee")
     @Builder.Default
     private String deliveryFee = "";
-//    @OneToOne(mappedBy = "paymentAndDelivery")
-//    private Order order;
+    @OneToOne(mappedBy = "paymentAndDelivery")
+    @ToString.Exclude
+    private Order order;
 }

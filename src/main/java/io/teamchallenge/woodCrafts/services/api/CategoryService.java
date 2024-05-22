@@ -1,19 +1,18 @@
 package io.teamchallenge.woodCrafts.services.api;
 
 import io.teamchallenge.woodCrafts.models.dto.CategoryDto;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface CategoryService {
 
-    ResponseEntity<Void> save(CategoryDto categoryDto);
+    CategoryDto save(CategoryDto categoryDto);
 
-    ResponseEntity<CategoryDto> findCategoryById(Long id);
+    CategoryDto findById(Long id);
 
-    ResponseEntity<Void> deleteCategoryById (Long id);
+    CategoryDto deleteCategoryById (Long id);
 
-    ResponseEntity<Void> updateCategoryById(CategoryDto categoryDto, Long id);
+    CategoryDto updateCategoryById(CategoryDto categoryDto, Long id);
 
-    ResponseEntity<List<CategoryDto>> getAllCategories(boolean isDeleted);
+    List<CategoryDto> getAllCategories(boolean isDeleted);
 }

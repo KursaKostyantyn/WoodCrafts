@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class ColorServiceImpl implements ColorService {
 
     private final ColorRepository colorRepository;
+    private final ColorMapper colorMapper;
 
     @Override
     @Transactional
@@ -30,7 +31,7 @@ public class ColorServiceImpl implements ColorService {
         if (existingColor.isPresent()) {
             throw new DuplicateException(String.format("Category with name='%s' already exists", colorDto.getName()));
         }
-        Color color = ColorMapper.convertColorDtoToColor(colorDto);
+        Color color = colorMapper.colorDtoToColor(colorDto);
         colorRepository.save(color);
 
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -43,7 +44,7 @@ public class ColorServiceImpl implements ColorService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(ColorMapper.convertColorToColorDto(color));
+        return ResponseEntity.status(HttpStatus.OK).body(colorMapper.colorToColorDto(color));
     }
 
     @Override
@@ -74,7 +75,7 @@ public class ColorServiceImpl implements ColorService {
     public ResponseEntity<List<ColorDto>> getAllColors(boolean isDeleted) {
         List<Color> colors = colorRepository.findAllByDeleted(isDeleted);
         List<ColorDto> colorDtos = colors.stream()
-                .map(ColorMapper::convertColorToColorDto)
+                .map(colorMapper::colorToColorDto)
                 .collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(colorDtos);

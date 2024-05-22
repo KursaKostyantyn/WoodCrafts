@@ -40,8 +40,8 @@ public class OrderController {
     }
 
     @PatchMapping("/orders/{id}")
-    public ResponseEntity<Void> updateOrderById(@Valid @PathVariable Long id
-            , @RequestBody OrderDto orderDto) {
+    public ResponseEntity<Void> updateOrderById(@PathVariable Long id
+            ,@Valid @RequestBody OrderDto orderDto) {
         return orderService.updateOrderById(id, orderDto);
     }
 
@@ -56,7 +56,7 @@ public class OrderController {
             @DateTimeFormat(pattern = "dd.MM.yyyy") @RequestParam(required = false, defaultValue = "01.01.3000") LocalDate toCreationDate,
             @RequestParam(required = false, defaultValue = "0") double minTotal,
             @RequestParam(required = false, defaultValue = "100000000") double maxTotal,
-            @RequestParam(required = false) String statusName
+            @RequestParam(required = false, defaultValue = "В обробці") String statusName
     ) {
         return orderService.getOrders(
                 PageRequest.of(page, size, direction, sortBy),

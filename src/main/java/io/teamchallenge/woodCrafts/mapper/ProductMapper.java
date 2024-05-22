@@ -1,62 +1,74 @@
 package io.teamchallenge.woodCrafts.mapper;
 
+import io.teamchallenge.woodCrafts.exception.EntityNotFoundException;
+import io.teamchallenge.woodCrafts.models.Category;
+import io.teamchallenge.woodCrafts.models.Color;
+import io.teamchallenge.woodCrafts.models.Material;
 import io.teamchallenge.woodCrafts.models.Product;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
-import io.teamchallenge.woodCrafts.utils.IdConverter;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import org.modelmapper.Condition;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.context.annotation.Bean;
+import io.teamchallenge.woodCrafts.repository.CategoryRepository;
+import io.teamchallenge.woodCrafts.repository.ColorRepository;
+import io.teamchallenge.woodCrafts.repository.MaterialRepository;
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.ApplicationScope;
 
-import java.util.Objects;
+@Mapper(componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        uses = {
+                CategoryMapper.class,
+                ColorMapper.class,
+                MaterialMapper.class,
+                ProductMapper.EntityLoader.class
+        })
+public interface ProductMapper {
+    @Mapping(source = "color.id", target = "colorId")
+    @Mapping(source = "material.id", target = "materialId")
+    @Mapping(source = "category.id", target = "categoryId")
+    ProductDto productToProductDto(Product product);
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductMapper {
+    @Mapping(source = "categoryId", target = "category", qualifiedByName = "findCategoryById")
+    @Mapping(source = "materialId", target = "material", qualifiedByName = "findMaterialById")
+    @Mapping(source = "colorId", target = "color", qualifiedByName = "findColorById")
+    Product productDtoToProduct(ProductDto productDto);
 
-    public static Product convertProductDtoToProduct(ProductDto productDto) {
-        ModelMapper modelMapper = new ModelMapper();
-        if (productDto.getDeleted() ==null){
-            productDto.setDeleted(false);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "categoryId", target = "category", qualifiedByName = "findCategoryById")
+    @Mapping(source = "materialId", target = "material", qualifiedByName = "findMaterialById")
+    @Mapping(source = "colorId", target = "color", qualifiedByName = "findColorById")
+    void updateProductFromProductDto(@MappingTarget Product product, ProductDto productDto);
+
+
+    @RequiredArgsConstructor
+    @Component
+    class EntityLoader {
+
+        private final CategoryRepository categoryRepository;
+
+        private final MaterialRepository materialRepository;
+
+        private final ColorRepository colorRepository;
+
+        @Named("findCategoryById")
+        public Category findCategoryById(Long id) {
+            return categoryRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found with id " + id));
         }
-        modelMapper.typeMap(ProductDto.class,Product.class)
-                .addMappings(mapper->{
-                    mapper.skip(Product::setCreationDate);
-                    mapper.skip(Product::setUpdateDate);
-                });
 
-        Product product = modelMapper.map(productDto, Product.class);
-        if(productDto.getId()!=null){
-            product.setId(IdConverter.convertStringToId(productDto.getId()));
+        @Named("findMaterialById")
+        public Material findMaterialById(Long id) {
+            return materialRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Material not found with id " + id));
         }
-        return product;
-    }
 
-    public static ProductDto convertProductToProductDto(Product product) {
-        ModelMapper modelMapper = new ModelMapper();
-
-        ProductDto productDto = modelMapper.map(product, ProductDto.class);
-        productDto.setId(IdConverter.convertIdToString(product.getId()));
-        productDto.setPhotos(product.getPhotos());
-        return productDto;
-    }
-
-    public static void updateProductFromProductDto(ProductDto productDto, Product product) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Condition<Object,Object> notNull=ctx-> Objects.nonNull(ctx.getSource());
-        modelMapper.typeMap(ProductDto.class, Product.class)
-                .setPropertyCondition(notNull)
-                .addMappings(mapper -> {
-                    mapper.skip(Product::setCategory);
-                    mapper.skip(Product::setColor);
-                    mapper.skip(Product::setMaterial);
-                    mapper.skip(Product::setCreationDate);
-                    mapper.when(notNull);
-                });
-        modelMapper.map(productDto, product);
+        @Named("findColorById")
+        public Color findColorById(Long id) {
+            return colorRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Color not found with id " + id));
+        }
     }
 }

@@ -1,6 +1,5 @@
 package io.teamchallenge.woodCrafts.services.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.teamchallenge.woodCrafts.exception.EntityNotFoundException;
 import io.teamchallenge.woodCrafts.mapper.ProductMapper;
@@ -15,37 +14,25 @@ import io.teamchallenge.woodCrafts.repository.ColorRepository;
 import io.teamchallenge.woodCrafts.repository.MaterialRepository;
 import io.teamchallenge.woodCrafts.repository.ProductRepository;
 import io.teamchallenge.woodCrafts.services.api.ProductService;
-import io.teamchallenge.woodCrafts.utils.JacksonUtils;
 import io.teamchallenge.woodCrafts.utils.ProductSpecificationsUtils;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -53,11 +40,12 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ColorRepository colorRepository;
     private final MaterialRepository materialRepository;
+    private final ProductMapper productMapper;
 
     @Transactional
     @Override
-    public ResponseEntity<Void> save(ProductDto productDto) {
-        Product product = ProductMapper.convertProductDtoToProduct(productDto);
+    public ProductDto save(ProductDto productDto) {
+        Product product = productMapper.productDtoToProduct(productDto);
         Category category = categoryRepository.findById(productDto.getCategoryId()).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", productDto.getCategoryId())));
         product.setCategory(category);
         Color color = colorRepository.findById(productDto.getColorId()).orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", productDto.getColorId())));
@@ -66,116 +54,45 @@ public class ProductServiceImpl implements ProductService {
         product.setMaterial(material);
         productRepository.save(product);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return productMapper.productToProductDto(product);
     }
 
     @Transactional
     @Override
-    public ResponseEntity<List<ProductDto>> getProductsById(List<Long> ids, String sortBy, Sort.Direction direction) {
+    public List<ProductDto> getProductsById(List<Long> ids, String sortBy, Sort.Direction direction) {
         List<Product> products = new ArrayList<>();
         ids.forEach(id -> {
-            Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", ids)));
+            Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
             products.add(product);
         });
         Comparator<ProductDto> comparator = createComparator(sortBy, direction);
-        List<ProductDto> productDtos = products.stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
-        productDtos.sort(comparator);
-        return ResponseEntity.status(HttpStatus.OK).body(productDtos);
+        List<ProductDto> productDtos = products.stream().map(productMapper::productToProductDto).collect(Collectors.toList());
+        if (comparator != null) {
+            productDtos.sort(comparator);
+        }
+        return productDtos;
     }
 
     @Transactional
     @Override
     public ProductDto getProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
-        return ProductMapper.convertProductToProductDto(product);
+        return productMapper.productToProductDto(product);
     }
 
     @Transactional
-
-    @Deprecated
     @Override
-    public ResponseEntity<Void> deleteProductById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
-        product.setDeleted(true);
+    public ProductDto updateProductById(ProductDto updates, Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
+        productMapper.updateProductFromProductDto(product, updates);
         productRepository.save(product);
-
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return productMapper.productToProductDto(product);
     }
 
+    @Transactional
     @Override
-    public ResponseEntity<Void> updateProductById(ObjectNode updates, Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
-        Iterator<Map.Entry<String, JsonNode>> fields = updates.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            updateField(field, product);
-        }
-        productRepository.save(product);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    @Override
-    @Deprecated
-    public ResponseEntity<Void> importListOfProducts(@NonNull MultipartFile productsFile) {
-        if (!productsFile.isEmpty()) {
-            try (Workbook workbook = WorkbookFactory.create(productsFile.getInputStream())) {
-                Sheet sheet = workbook.getSheetAt(0);
-                for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
-                    Row row = sheet.getRow(i);
-                    if (row != null) {
-                        String name = getStringCellValue(row, 0);
-                        double price = getDoubleCellValue(row, 1);
-                        String description = getStringCellValue(row, 2);
-                        Long colorId = getLongCellValue(row, 3);
-                        double weight = getDoubleCellValue(row, 4);
-                        double height = getDoubleCellValue(row, 5);
-                        double length = getDoubleCellValue(row, 6);
-                        double width = getDoubleCellValue(row, 7);
-                        Long categoryId = getLongCellValue(row, 8);
-                        int quantity = (int) getDoubleCellValue(row, 9);
-                        int warranty = (int) getDoubleCellValue(row, 10);
-                        Long materialId = getLongCellValue(row, 11);
-                        ProductDto productDto = new ProductDto();
-                        productDto.setName(name);
-                        productDto.setPrice(price);
-                        productDto.setDescription(description);
-                        productDto.setColorId(colorId);
-                        productDto.setWeight(weight);
-                        productDto.setHeight(height);
-                        productDto.setLength(length);
-                        productDto.setWidth(width);
-                        productDto.setCategoryId(categoryId);
-                        productDto.setQuantity(quantity);
-                        productDto.setWarranty(warranty);
-                        productDto.setMaterialId(materialId);
-
-                        save(productDto);
-                    }
-                }
-            } catch (IOException e) {
-                return ResponseEntity.badRequest().build();
-            }
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok().build();
-    }
-
-    private String getStringCellValue(Row row, int index) {
-        return row.getCell(index) != null ? row.getCell(index).getStringCellValue() : null;
-    }
-
-    private double getDoubleCellValue(Row row, int index) {
-        return row.getCell(index) != null ? row.getCell(index).getNumericCellValue() : 0.0;
-    }
-
-    private Long getLongCellValue(Row row, int index) {
-        return row.getCell(index) != null ? (long) row.getCell(index).getNumericCellValue() : null;
-    }
-
-    @Override
-    public ResponseEntity<PageWrapperDto<ProductDto>> getProducts
+    public PageWrapperDto<ProductDto> getProducts
             (
                     PageRequest pageRequest,
                     List<Long> categoryIds,
@@ -214,12 +131,12 @@ public class ProductServiceImpl implements ProductService {
                 .filterProduct(categories, colors, materials, minPrice, maxPrice, isDeleted, inStock, notAvailable, name, fromDate, toDate);
         Page<Product> filteredProductsPage = productRepository.findAll(specification, pageRequest);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
-        List<ProductDto> collect = filteredProductsPage.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList());
+        List<ProductDto> collect = filteredProductsPage.getContent().stream().map(productMapper::productToProductDto).collect(Collectors.toList());
         pageWrapperDto.setData(collect);
         pageWrapperDto.setTotalPages(filteredProductsPage.getTotalPages());
         pageWrapperDto.setTotalItems(filteredProductsPage.getTotalElements());
 
-        return ResponseEntity.ok(pageWrapperDto);
+        return pageWrapperDto;
     }
 
     @Override
@@ -227,7 +144,7 @@ public class ProductServiceImpl implements ProductService {
                                                                             boolean isAvailable) {
         Page<Product> productsByName = productRepository.findAllByNameContainingIgnoreCaseAndDeleted(pageRequest, name, isAvailable);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
-        pageWrapperDto.setData(productsByName.getContent().stream().map(ProductMapper::convertProductToProductDto).collect(Collectors.toList()));
+        pageWrapperDto.setData(productsByName.getContent().stream().map(productMapper::productToProductDto).collect(Collectors.toList()));
         pageWrapperDto.setTotalPages(productsByName.getTotalPages());
         pageWrapperDto.setTotalItems(productsByName.getTotalElements());
 
@@ -250,76 +167,11 @@ public class ProductServiceImpl implements ProductService {
         return ResponseEntity.ok().build();
     }
 
-    private void updateField(Map.Entry<String, JsonNode> field, Product product) {
-        String key = field.getKey();
-        JsonNode value = field.getValue();
-        switch (key) {
-            case "categoryId":
-                Long categoryId = value.asLong();
-                Category category = categoryRepository.findById(categoryId)
-                        .orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", categoryId)));
-                product.setCategory(category);
-            case "colorId":
-                Long colorId = value.asLong();
-                Color color = colorRepository.findById(colorId)
-                        .orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", colorId)));
-                product.setColor(color);
-                break;
-            case "materialId":
-                Long materialId = value.asLong();
-                Material material = materialRepository.findById(materialId)
-                        .orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", materialId)));
-                product.setMaterial(material);
-                break;
-            case "price":
-                Double price = value.asDouble();
-                product.setPrice(price);
-                break;
-            case "name":
-                product.setName(value.asText());
-                break;
-            case "description":
-                product.setDescription(value.asText());
-                break;
-            case "weight":
-                Double weight = value.asDouble();
-                product.setWeight(weight);
-                break;
-            case "height":
-                Double height = value.asDouble();
-                product.setHeight(height);
-                break;
-            case "length":
-                Double length = value.asDouble();
-                product.setLength(length);
-                break;
-            case "width":
-                Double width = value.asDouble();
-                product.setWidth(width);
-                break;
-            case "quantity":
-                Integer quantity = value.intValue();
-                product.setQuantity(quantity);
-                break;
-            case "warranty":
-                Integer warranty = value.asInt();
-                product.setWarranty(warranty);
-                break;
-            case "deleted":
-                Boolean deleted = value.asBoolean();
-                product.setDeleted(deleted);
-                break;
-            case "photos":
-                List<String> list = JacksonUtils.toStringList(value);
-                product.setPhotos(list);
-                break;
-        }
-    }
-
     private Comparator<ProductDto> createComparator(String sortBy, Sort.Direction direction) {
         Comparator<ProductDto> comparator = Comparator.comparing(ProductDto::getId);
-
-        if ("price".equals(sortBy)) {
+        if ("id".equals(sortBy)) {
+            comparator = Comparator.comparing(ProductDto::getId, Comparator.nullsFirst(String::compareTo));
+        } else if ("price".equals(sortBy)) {
             comparator = Comparator.comparing(ProductDto::getPrice);
         } else if ("name".equals(sortBy)) {
             comparator = Comparator.comparing(ProductDto::getName);
@@ -353,5 +205,4 @@ public class ProductServiceImpl implements ProductService {
         }
         return comparator;
     }
-
 }

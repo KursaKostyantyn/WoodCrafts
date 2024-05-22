@@ -29,30 +29,34 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/categories")
-    public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
-        return categoryService.save(categoryDto);
+    public ResponseEntity<CategoryDto> save(@Valid @RequestBody CategoryDto categoryDto) {
+        CategoryDto category = categoryService.save(categoryDto);
+        return ResponseEntity.ok(category);
     }
 
     @GetMapping("/categories/{id}")
-    public ResponseEntity<CategoryDto> findCategoryById(@PathVariable @Min(1) Long id) {
-        return categoryService.findCategoryById(id);
+    public ResponseEntity<CategoryDto> findById(@PathVariable @Min(1) Long id) {
+        return ResponseEntity.ok(categoryService.findById(id));
     }
 
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteCategoryById(@PathVariable @Min(1) Long id) {
-        return categoryService.deleteCategoryById(id);
+        categoryService.deleteCategoryById(id);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/categories/{id}")
-    public ResponseEntity<Void> updateCategoryById(@Valid @RequestBody CategoryDto categoryDto,
-                                                   @PathVariable @Min(1) Long id) {
-        return categoryService.updateCategoryById(categoryDto, id);
+    public ResponseEntity<CategoryDto> updateCategoryById(@Valid @RequestBody CategoryDto categoryDto,
+                                                          @PathVariable @Min(1) Long id) {
+        CategoryDto category = categoryService.updateCategoryById(categoryDto, id);
+        return ResponseEntity.ok(category);
     }
 
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryDto>> getAllCategories(
             @RequestParam(required = false, defaultValue = "false") boolean isDeleted
     ) {
-        return categoryService.getAllCategories(isDeleted);
+        List<CategoryDto> Categories = categoryService.getAllCategories(isDeleted);
+        return ResponseEntity.ok(Categories);
     }
 }
