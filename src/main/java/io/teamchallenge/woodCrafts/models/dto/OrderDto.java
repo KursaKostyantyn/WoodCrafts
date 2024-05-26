@@ -23,7 +23,7 @@ public class OrderDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm")
     private LocalDateTime creationDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm")
-    private LocalDateTime update_date;
+    private LocalDateTime updateDate;
     private String address;
     @NotBlank(message = "Status cannot be blank")
     private String status;

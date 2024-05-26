@@ -65,18 +65,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public ResponseEntity<Void> updateOrderById(Long id, OrderDto orderDto) {
+    public OrderDto updateOrderById(Long id, OrderDto orderDto) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Order with id='%s' not found", id)));
-//        List<ProductLine> productLines = productLineService.updateProductLines(orderDto.getProductLines(), order);
+        List<ProductLine> productLines = productLineService.updateProductLines(orderDto.getProductLines(), order);
         order.setAddress(orderDto.getAddress());
         order.setStatus(Status.getStatusByRepresentationStatus(orderDto.getStatus()));
         order.setDeleted(orderDto.getDeleted());
-//        order.setProductLines(productLines);
+        order.setProductLines(productLines);
+        orderRepository.saveAndFlush(order);
 
-        orderRepository.save(order);
-
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return orderMapper.orderToOrderDto(order);
     }
 
     @Transactional

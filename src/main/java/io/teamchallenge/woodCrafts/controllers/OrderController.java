@@ -40,9 +40,10 @@ public class OrderController {
     }
 
     @PatchMapping("/orders/{id}")
-    public ResponseEntity<Void> updateOrderById(@PathVariable Long id
-            ,@Valid @RequestBody OrderDto orderDto) {
-        return orderService.updateOrderById(id, orderDto);
+    public ResponseEntity<OrderDto> updateOrderById(@PathVariable Long id,
+                                                    @Valid @RequestBody OrderDto orderDto) {
+        OrderDto updatedOrder = orderService.updateOrderById(id, orderDto);
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @GetMapping("/orders")

@@ -15,7 +15,7 @@ public interface OrderService {
 
     ResponseEntity<OrderDto> getOrderById(Long id);
 
-    ResponseEntity<Void> updateOrderById(Long id, OrderDto orderDto);
+    OrderDto updateOrderById(Long id, OrderDto orderDto);
 
     ResponseEntity<PageWrapperDto<OrderDto>> getOrders(
             PageRequest pageRequest,

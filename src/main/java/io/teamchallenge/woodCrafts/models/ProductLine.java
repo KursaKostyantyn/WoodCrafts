@@ -32,13 +32,13 @@ public class ProductLine {
     private Long id;
 
     @ManyToOne
-    @Cascade(CascadeType.ALL)
+    @Cascade({CascadeType.PERSIST, CascadeType.MERGE, CascadeType.SAVE_UPDATE})
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Order order;
 
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
-    @Cascade({CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH})
+    @Cascade({CascadeType.PERSIST, CascadeType.MERGE, CascadeType.SAVE_UPDATE})
     private Product product;
 
     @Column(name = "quantity")

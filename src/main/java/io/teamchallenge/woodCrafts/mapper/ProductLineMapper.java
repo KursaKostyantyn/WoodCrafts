@@ -6,10 +6,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",
+uses = {ProductMapper.class})
 public interface ProductLineMapper {
+    @Mapping(target = "orderId", source = "order.id")
     ProductLineDto productLineToProductLineDto(ProductLine productLine);
 
+    @Mapping(target = "order.id", source = "orderId")
     ProductLine productLineDtoToProductLine(ProductLineDto productLineDto);
 
     @Mapping(target = "product", ignore = true)

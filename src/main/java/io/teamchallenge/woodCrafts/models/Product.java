@@ -27,6 +27,7 @@ import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Builder
 @AllArgsConstructor
@@ -131,4 +132,10 @@ public class Product {
     @ToString.Exclude
     @Builder.Default
     private List<ProductLine> productLines = new ArrayList<>();
+
+    public void updateProductLine(Long productLineId, ProductLine productLine){
+        this.productLines = this.productLines.stream()
+                .map(productLine1 -> productLine1.getId().equals(productLineId) ? productLine : productLine1)
+                .collect(Collectors.toList());
+    }
 }

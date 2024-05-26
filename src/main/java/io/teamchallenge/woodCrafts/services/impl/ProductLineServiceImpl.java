@@ -6,7 +6,6 @@ import io.teamchallenge.woodCrafts.models.Order;
 import io.teamchallenge.woodCrafts.models.Product;
 import io.teamchallenge.woodCrafts.models.ProductLine;
 import io.teamchallenge.woodCrafts.models.dto.ProductLineDto;
-import io.teamchallenge.woodCrafts.repository.OrderRepository;
 import io.teamchallenge.woodCrafts.repository.ProductLineRepository;
 import io.teamchallenge.woodCrafts.repository.ProductRepository;
 import io.teamchallenge.woodCrafts.services.api.ProductLineService;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 public class ProductLineServiceImpl implements ProductLineService {
     private final ProductRepository productRepository;
     private final ProductLineRepository productLineRepository;
-    private final OrderRepository orderRepository;
     private final ProductLineMapper productLineMapper;
 
     @Override
@@ -44,6 +42,7 @@ public class ProductLineServiceImpl implements ProductLineService {
     @Override
     public List<ProductLine> updateProductLines(List<ProductLineDto> productLineDtos, Order order) {
         List<ProductLine> productLines = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
         productLineDtos.forEach(productLineDto -> {
             if (productLineDto.getId() != null) {
                 Long productLineId = productLineDto.getId();
@@ -55,8 +54,10 @@ public class ProductLineServiceImpl implements ProductLineService {
                         .orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", productId)));
                 productLineMapper.updateProductLineFromProductLineDto(productLine, productLineDto);
                 productLine.setProduct(product);
+                product.updateProductLine(productLineId, productLine);
                 productLine.setOrder(order);
                 productLines.add(productLine);
+                products.add(product);
             } else {
                 String formattedId = productLineDto.getProduct().getId();
                 Long productId = IdConverter.convertStringToId(formattedId);
@@ -65,21 +66,26 @@ public class ProductLineServiceImpl implements ProductLineService {
                 ProductLine productLine = productLineMapper.productLineDtoToProductLine(productLineDto);
                 productLine.setProduct(product);
                 productLine.setOrder(order);
+                product.getProductLines().add(productLine);
                 productLines.add(productLine);
+                products.add(product);
             }
         });
-        List<Long> productLinesId = productLines.stream().map(ProductLine::getId).collect(Collectors.toList());
-        Order orderById = orderRepository.findById(order.getId()).orElse(new Order());
-        List<ProductLine> oldProductLines = productLineRepository.findProductLinesByOrder(orderById);
-        order.setProductLines(new ArrayList<>());
-        oldProductLines.forEach(productLine -> {
-            if (!productLinesId.contains(productLine.getId())) {
-                productLineRepository.deleteById(productLine.getId());
-            }
-        });
-
+        productRepository.saveAll(products);
+        productLineRepository.saveAll(productLines);
+        deleteOldProductLines(order.getProductLines(), productLines);
         return productLines;
     }
 
-
+    private void deleteOldProductLines(List<ProductLine> oldProductLines, List<ProductLine> newProductLines) {
+        List<Long> newProductLinesId = newProductLines.stream().map(ProductLine::getId).collect(Collectors.toList());
+        List<ProductLine> productLinesForDelete = new ArrayList<>();
+        oldProductLines.forEach(productLine -> {
+            if (!newProductLinesId.contains(productLine.getId())) {
+                productLinesForDelete.add(productLine);
+            }
+        });
+        productLineRepository.deleteAll(productLinesForDelete);
+        System.out.println(productLinesForDelete);
+    }
 }

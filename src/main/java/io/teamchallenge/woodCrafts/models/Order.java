@@ -50,7 +50,7 @@ public class Order {
 
     @Column(name = "update_date")
     @UpdateTimestamp
-    private LocalDateTime update_date;
+    private LocalDateTime updateDate;
 
     @Column(name = "address")
     private String address;
