@@ -1,12 +1,12 @@
 package io.teamchallenge.woodCrafts.services.impl;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.teamchallenge.woodCrafts.exception.EntityNotFoundException;
 import io.teamchallenge.woodCrafts.mapper.ProductMapper;
 import io.teamchallenge.woodCrafts.models.Category;
 import io.teamchallenge.woodCrafts.models.Color;
 import io.teamchallenge.woodCrafts.models.Material;
 import io.teamchallenge.woodCrafts.models.Product;
+import io.teamchallenge.woodCrafts.models.dto.IdsDto;
 import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
 import io.teamchallenge.woodCrafts.repository.CategoryRepository;
@@ -144,7 +144,9 @@ public class ProductServiceImpl implements ProductService {
                                                                             boolean isAvailable) {
         Page<Product> productsByName = productRepository.findAllByNameContainingIgnoreCaseAndDeleted(pageRequest, name, isAvailable);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
-        pageWrapperDto.setData(productsByName.getContent().stream().map(productMapper::productToProductDto).collect(Collectors.toList()));
+        pageWrapperDto.setData(productsByName.getContent().stream()
+                .map(productMapper::productToProductDto)
+                .collect(Collectors.toList()));
         pageWrapperDto.setTotalPages(productsByName.getTotalPages());
         pageWrapperDto.setTotalItems(productsByName.getTotalElements());
 
@@ -152,19 +154,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<Void> deleteProductList(List<ObjectNode> productIds) {
+    public void deleteProductList(List<IdsDto> productIds) {
         List<Product> products = new ArrayList<>();
-        for (ObjectNode node : productIds) {
-            if (node.has("id")) {
-                Long id = node.get("id").asLong();
-                Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
+        for (IdsDto idsDto : productIds) {
+                Long id = idsDto.getId();
+                Product product = productRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException(String.format("Product with id='%s' not found", id)));
                 product.setDeleted(true);
                 products.add(product);
-            }
         }
         productRepository.saveAll(products);
-
-        return ResponseEntity.ok().build();
     }
 
     private Comparator<ProductDto> createComparator(String sortBy, Sort.Direction direction) {

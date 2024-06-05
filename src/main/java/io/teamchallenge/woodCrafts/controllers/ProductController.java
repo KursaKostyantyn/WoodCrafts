@@ -1,8 +1,8 @@
 package io.teamchallenge.woodCrafts.controllers;
 
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.teamchallenge.woodCrafts.models.dto.IdsDto;
 import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
 import io.teamchallenge.woodCrafts.services.api.ProductService;
@@ -108,8 +108,9 @@ public class ProductController {
     }
 
     @DeleteMapping("/products")
-    public ResponseEntity<Void> deleteProductList(@RequestBody @NotNull List<ObjectNode> productDtoList) {
-        return productService.deleteProductList(productDtoList);
+    public ResponseEntity<Void> deleteProductList(@RequestBody @NotNull List<IdsDto> productDtoList) {
+         productService.deleteProductList(productDtoList);
+         return ResponseEntity.ok().build();
     }
 
     @Schema(hidden = true)

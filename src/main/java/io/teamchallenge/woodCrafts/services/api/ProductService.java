@@ -1,6 +1,6 @@
 package io.teamchallenge.woodCrafts.services.api;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.teamchallenge.woodCrafts.models.dto.IdsDto;
 import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
 import org.springframework.data.domain.PageRequest;
@@ -38,5 +38,5 @@ public interface ProductService {
 
     ResponseEntity<PageWrapperDto<ProductDto>> findAllProductsByName(PageRequest pageRequest, String name, boolean isAvailable);
 
-    ResponseEntity<Void> deleteProductList(List<ObjectNode> productDtoList);
+    void deleteProductList(List<IdsDto> productDtoList);
 }

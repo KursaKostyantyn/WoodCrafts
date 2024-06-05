@@ -6,6 +6,7 @@ import io.teamchallenge.woodCrafts.models.Category;
 import io.teamchallenge.woodCrafts.models.Color;
 import io.teamchallenge.woodCrafts.models.Material;
 import io.teamchallenge.woodCrafts.models.Product;
+import io.teamchallenge.woodCrafts.models.dto.IdsDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
 import io.teamchallenge.woodCrafts.repository.CategoryRepository;
 import io.teamchallenge.woodCrafts.repository.ColorRepository;
@@ -286,7 +287,7 @@ class ProductServiceImplTest {
     }
 
     @Test
-    void updateProductById_whenProductNotFOund_shouldThrowExpection() {
+    void updateProductById_whenProductNotFound_shouldThrowExpection() {
         //given
         Long productId = 1L;
         ProductDto productDto = createProductDto(productId);
@@ -312,7 +313,54 @@ class ProductServiceImplTest {
     }
 
     @Test
-    void deleteProductList() {
+    void deleteProductList_success() {
+        //given
+        Long firstId = 1L;
+        Long secondId = 2L;
+        List<IdsDto> productIds = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
+        Product firstProduct = new Product();
+        firstProduct.setId(firstId);
+        firstProduct.setDeleted(false);
+        Product secondProduct = new Product();
+        secondProduct.setId(secondId);
+        secondProduct.setDeleted(false);
+        productIds.add(new IdsDto(firstId));
+        productIds.add(new IdsDto(secondId));
+        products.add(firstProduct);
+        products.add(secondProduct);
+        when(productRepository.findById(firstId)).thenReturn(Optional.of(firstProduct));
+        when(productRepository.findById(secondId)).thenReturn(Optional.of(secondProduct));
+
+        //when
+        productService.deleteProductList(productIds);
+
+        //then
+        verify(productRepository,times(1)).findById(firstId);
+        verify(productRepository, times(1)).findById(secondId);
+        verify(productRepository, times(1)).saveAll(products);
+        assertEquals(true, products.get(0).getDeleted());
+        assertEquals(true, products.get(1).getDeleted());
+    }
+
+    @Test
+    void deleteProductList_whenNotFound_throwsException() {
+        //given
+        Long firstId = 1L;
+        String expectedMessage = String.format("Product with id='%s' not found", firstId);
+        List<IdsDto> productIds = new ArrayList<>();
+        Product firstProduct = new Product();
+        firstProduct.setId(firstId);
+        firstProduct.setDeleted(false);
+        productIds.add(new IdsDto(firstId));
+        when(productRepository.findById(firstId)).thenReturn(Optional.empty());
+
+        //when
+        EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () -> productService.deleteProductList(productIds));
+
+        //then
+        assertNotNull(entityNotFoundException);
+        assertNotNull(expectedMessage, entityNotFoundException.getMessage());
     }
 
     public static ProductDto createProductDto(Long productId) {
@@ -371,7 +419,7 @@ class ProductServiceImplTest {
         return product;
     }
 
-    public Product convertProductDtoToProduct(
+    private Product convertProductDtoToProduct(
             ProductDto productDto,
             Color color,
             Category category,
@@ -398,7 +446,7 @@ class ProductServiceImplTest {
         return product;
     }
 
-    public ProductDto convertProductToProductDto(Product product) {
+    private ProductDto convertProductToProductDto(Product product) {
         ProductDto productDto = new ProductDto();
         productDto.setId(String.valueOf(product.getId()));
         productDto.setPrice(product.getPrice());
