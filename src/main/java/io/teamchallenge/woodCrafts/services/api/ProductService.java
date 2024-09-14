@@ -1,10 +1,9 @@
 package io.teamchallenge.woodCrafts.services.api;
 
-import io.teamchallenge.woodCrafts.models.dto.FilterDto;
 import io.teamchallenge.woodCrafts.models.dto.IdsDto;
 import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
-import org.springframework.data.domain.PageRequest;
+import io.teamchallenge.woodCrafts.models.dto.ProductFilterDto;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 
@@ -20,9 +19,9 @@ public interface ProductService {
 
     ProductDto updateProductById(ProductDto updates, Long id);
 
-    PageWrapperDto<ProductDto> getProducts(FilterDto filterDto);
+    PageWrapperDto<ProductDto> getProducts(ProductFilterDto filterDto);
 
-    ResponseEntity<PageWrapperDto<ProductDto>> findAllProductsByName(PageRequest pageRequest, String name, boolean isAvailable);
+    ResponseEntity<PageWrapperDto<ProductDto>> findAllProductsByName(ProductFilterDto productFilterDto);
 
     void deleteProductList(List<IdsDto> productDtoList);
 }

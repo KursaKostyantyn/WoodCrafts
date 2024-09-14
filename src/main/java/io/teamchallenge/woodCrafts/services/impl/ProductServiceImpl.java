@@ -6,10 +6,7 @@ import io.teamchallenge.woodCrafts.models.Category;
 import io.teamchallenge.woodCrafts.models.Color;
 import io.teamchallenge.woodCrafts.models.Material;
 import io.teamchallenge.woodCrafts.models.Product;
-import io.teamchallenge.woodCrafts.models.dto.FilterDto;
-import io.teamchallenge.woodCrafts.models.dto.IdsDto;
-import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
-import io.teamchallenge.woodCrafts.models.dto.ProductDto;
+import io.teamchallenge.woodCrafts.models.dto.*;
 import io.teamchallenge.woodCrafts.repository.CategoryRepository;
 import io.teamchallenge.woodCrafts.repository.ColorRepository;
 import io.teamchallenge.woodCrafts.repository.MaterialRepository;
@@ -92,41 +89,41 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public PageWrapperDto<ProductDto> getProducts(FilterDto filterDto) {
+    public PageWrapperDto<ProductDto> getProducts(ProductFilterDto productFilterDto) {
         List<Category> categories = new ArrayList<>();
-        if (filterDto.getCategoryIds() != null && !filterDto.getCategoryIds().isEmpty()) {
-            for (Long categoryId : filterDto.getCategoryIds()) {
+        if (productFilterDto.getCategoryIds() != null && !productFilterDto.getCategoryIds().isEmpty()) {
+            for (Long categoryId : productFilterDto.getCategoryIds()) {
                 categories.add(categoryRepository.findById(categoryId).orElseThrow(() -> new EntityNotFoundException(String.format("Category with id='%s' not found", categoryId))));
             }
         }
         List<Color> colors = new ArrayList<>();
-        if (filterDto.getColorIds() != null && !filterDto.getColorIds().isEmpty()) {
-            for (Long colorId : filterDto.getColorIds()) {
+        if (productFilterDto.getColorIds() != null && !productFilterDto.getColorIds().isEmpty()) {
+            for (Long colorId : productFilterDto.getColorIds()) {
                 colors.add(colorRepository.findById(colorId).orElseThrow(() -> new EntityNotFoundException(String.format("Color with id='%s' not found", colorId))));
             }
         }
         List<Material> materials = new ArrayList<>();
-        if (filterDto.getMaterialIds() != null && !filterDto.getMaterialIds().isEmpty()) {
-            for (Long materialId : filterDto.getMaterialIds()) {
+        if (productFilterDto.getMaterialIds() != null && !productFilterDto.getMaterialIds().isEmpty()) {
+            for (Long materialId : productFilterDto.getMaterialIds()) {
                 materials.add(materialRepository.findById(materialId).orElseThrow(() -> new EntityNotFoundException(String.format("Material with id='%s' not found", materialId))));
             }
         }
-        LocalDateTime fromDate = filterDto.getDateFrom().atStartOfDay();
-        LocalDateTime toDate = LocalDateTime.of(filterDto.getDateTo(), LocalTime.MAX);
+        LocalDateTime fromDate = productFilterDto.getDateFrom().atStartOfDay();
+        LocalDateTime toDate = LocalDateTime.of(productFilterDto.getDateTo(), LocalTime.MAX);
         Specification<Product> specification = ProductSpecificationsUtils
                 .filterProduct(
                         categories,
                         colors,
                         materials,
-                        filterDto.getMinPrice(),
-                        filterDto.getMaxPrice(),
-                        filterDto.getIsDeleted(),
-                        filterDto.getInStock(),
-                        filterDto.getNotAvailable(),
-                        filterDto.getName(),
+                        productFilterDto.getMinPrice(),
+                        productFilterDto.getMaxPrice(),
+                        productFilterDto.isDeleted(),
+                        productFilterDto.isInStock(),
+                        productFilterDto.isAvailable(),
+                        productFilterDto.getName(),
                         fromDate,
                         toDate);
-        PageRequest pageRequest = PageRequest.of(filterDto.getPage(), filterDto.getSize(), filterDto.getDirection(), filterDto.getSortBy());
+        PageRequest pageRequest = PageRequest.of(productFilterDto.getPage(), productFilterDto.getSize(), productFilterDto.getDirection(), productFilterDto.getSortBy());
         Page<Product> filteredProductsPage = productRepository.findAll(specification, pageRequest);
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         List<ProductDto> collect = filteredProductsPage.getContent().stream().map(productMapper::productToProductDto).collect(Collectors.toList());
@@ -138,9 +135,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProductsByName(PageRequest pageRequest, String name,
-                                                                            boolean isAvailable) {
-        Page<Product> productsByName = productRepository.findAllByNameContainingIgnoreCaseAndDeleted(pageRequest, name, isAvailable);
+    public ResponseEntity<PageWrapperDto<ProductDto>> findAllProductsByName(ProductFilterDto productFilterDto) {
+        PageRequest pageRequest = PageRequest.of(productFilterDto.getPage(), productFilterDto.getSize(), productFilterDto.getDirection(), productFilterDto.getSortBy());
+        Page<Product> productsByName = productRepository.findAllByNameContainingIgnoreCaseAndDeleted(pageRequest, productFilterDto.getName(), productFilterDto.isAvailable());
         PageWrapperDto<ProductDto> pageWrapperDto = new PageWrapperDto<>();
         pageWrapperDto.setData(productsByName.getContent().stream()
                 .map(productMapper::productToProductDto)

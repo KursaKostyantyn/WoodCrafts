@@ -35,7 +35,7 @@ public class FilterDto {
     @Builder.Default
     private Boolean inStock = true;
     @Builder.Default
-    private Boolean notAvailable = true;
+    private Boolean available = true;
     private String name;
     @DateTimeFormat(pattern = "dd.MM.yyyy")
     @Builder.Default

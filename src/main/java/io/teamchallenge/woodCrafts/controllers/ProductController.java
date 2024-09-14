@@ -2,13 +2,12 @@ package io.teamchallenge.woodCrafts.controllers;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.teamchallenge.woodCrafts.models.dto.FilterDto;
 import io.teamchallenge.woodCrafts.models.dto.IdsDto;
 import io.teamchallenge.woodCrafts.models.dto.PageWrapperDto;
 import io.teamchallenge.woodCrafts.models.dto.ProductDto;
+import io.teamchallenge.woodCrafts.models.dto.ProductFilterDto;
 import io.teamchallenge.woodCrafts.services.api.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,23 +51,18 @@ public class ProductController {
 
     @GetMapping("/products")
     public ResponseEntity<PageWrapperDto<ProductDto>> getProducts(
-            @ModelAttribute FilterDto filterDto
+            @ModelAttribute ProductFilterDto productFilterDto
     ) {
-        PageWrapperDto<ProductDto> products = productService.getProducts(filterDto);
+        PageWrapperDto<ProductDto> products = productService.getProducts(productFilterDto);
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/products/byName/{name}")
     public ResponseEntity<PageWrapperDto<ProductDto>> findAllProductsByName
             (
-                    @RequestParam(required = false, defaultValue = "0") int page,
-                    @RequestParam(required = false, defaultValue = "7") int size,
-                    @RequestParam(required = false, defaultValue = "id") String sortBy,
-                    @RequestParam(required = false, defaultValue = "DESC") Sort.Direction direction,
-                    @PathVariable String name,
-                    @RequestParam(required = false, defaultValue = "false") boolean isDeleted
+                   @ModelAttribute ProductFilterDto productFilterDto
             ) {
-        return productService.findAllProductsByName(PageRequest.of(page, size, direction, sortBy), name, isDeleted);
+        return productService.findAllProductsByName(productFilterDto);
     }
 
     @DeleteMapping("/products")
