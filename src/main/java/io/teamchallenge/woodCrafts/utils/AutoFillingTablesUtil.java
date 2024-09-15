@@ -4,12 +4,25 @@ import io.teamchallenge.woodCrafts.constants.Status;
 import io.teamchallenge.woodCrafts.mapper.UserMapper;
 import io.teamchallenge.woodCrafts.models.Category;
 import io.teamchallenge.woodCrafts.models.User;
-import io.teamchallenge.woodCrafts.models.dto.*;
+import io.teamchallenge.woodCrafts.models.dto.CategoryDto;
+import io.teamchallenge.woodCrafts.models.dto.ColorDto;
+import io.teamchallenge.woodCrafts.models.dto.MaterialDto;
+import io.teamchallenge.woodCrafts.models.dto.OrderDto;
+import io.teamchallenge.woodCrafts.models.dto.PaymentAndDeliveryDto;
+import io.teamchallenge.woodCrafts.models.dto.ProductDto;
+import io.teamchallenge.woodCrafts.models.dto.ProductLineDto;
+import io.teamchallenge.woodCrafts.models.dto.UserDto;
 import io.teamchallenge.woodCrafts.repository.CategoryRepository;
 import io.teamchallenge.woodCrafts.repository.ColorRepository;
 import io.teamchallenge.woodCrafts.repository.MaterialRepository;
 import io.teamchallenge.woodCrafts.repository.ProductRepository;
-import io.teamchallenge.woodCrafts.services.api.*;
+import io.teamchallenge.woodCrafts.services.api.CategoryService;
+import io.teamchallenge.woodCrafts.services.api.ColorService;
+import io.teamchallenge.woodCrafts.services.api.MaterialService;
+import io.teamchallenge.woodCrafts.services.api.OrderService;
+import io.teamchallenge.woodCrafts.services.api.PaymentAndDeliveryService;
+import io.teamchallenge.woodCrafts.services.api.ProductService;
+import io.teamchallenge.woodCrafts.services.api.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -19,11 +32,23 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import static io.teamchallenge.woodCrafts.constants.CategoryConstants.CATEGORY_NAMES_CHAIRS;
+import static io.teamchallenge.woodCrafts.constants.CategoryConstants.CATEGORY_NAMES_SOFAS;
+import static io.teamchallenge.woodCrafts.constants.CategoryConstants.CATEGORY_NAME_BEDS;
+import static io.teamchallenge.woodCrafts.constants.CategoryConstants.CATEGORY_NAME_BEDSIDE_TABLES;
+import static io.teamchallenge.woodCrafts.constants.CategoryConstants.CATEGORY_NAME_COFFEE_TABLES;
+import static io.teamchallenge.woodCrafts.constants.CategoryConstants.CATEGORY_NAME_OTHER;
+import static io.teamchallenge.woodCrafts.constants.CategoryConstants.CATEGORY_NAME_STOOLS;
+import static io.teamchallenge.woodCrafts.constants.CategoryConstants.CATEGORY_NAME_TABLES;
+import static io.teamchallenge.woodCrafts.constants.CategoryConstants.CATEGORY_NAME_WARDROBE;
 
 @Service
 @RequiredArgsConstructor
 public class AutoFillingTablesUtil {
+
     private final CategoryRepository categoryRepository;
     private final ColorRepository colorRepository;
     private final MaterialRepository materialRepository;
@@ -36,12 +61,15 @@ public class AutoFillingTablesUtil {
     private final OrderService orderService;
     private final PaymentAndDeliveryService paymentAndDeliveryService;
     private final UserMapper userMapper;
+    private final Random random = new Random();
+    private final Map<String, String> photos;
 
     @Bean
     public void autoFilling() {
         List<Category> categories = categoryRepository.findAll();
         if (categories.isEmpty()) {
             int numberOfProducts = 10;
+            fillPhotos();
             saveCategory();
             saveColoros();
             saveMaterials();
@@ -52,9 +80,21 @@ public class AutoFillingTablesUtil {
         }
     }
 
-    public void saveOrders(int numberOfOrders) {
+    private void fillPhotos() {
+        photos.put(CATEGORY_NAME_TABLES, "https://content1.rozetka.com.ua/goods/images/big/273094280.jpg");
+        photos.put(CATEGORY_NAME_BEDS, "https://content2.rozetka.com.ua/goods/images/big/461741929.jpg");
+        photos.put(CATEGORY_NAME_BEDSIDE_TABLES, "https://content.rozetka.com.ua/goods/images/big/392119650.jpg");
+        photos.put(CATEGORY_NAME_STOOLS, "https://content1.rozetka.com.ua/goods/images/big/399435070.jpg");
+        photos.put(CATEGORY_NAME_WARDROBE, "https://content2.rozetka.com.ua/goods/images/big/367690037.jpg");
+        photos.put(CATEGORY_NAME_COFFEE_TABLES, "https://content2.rozetka.com.ua/goods/images/big/414081372.jpg");
+        photos.put(CATEGORY_NAMES_SOFAS, "https://content.rozetka.com.ua/goods/images/big/27779876.jpg");
+        photos.put(CATEGORY_NAMES_CHAIRS, "https://content.rozetka.com.ua/goods/images/big/10802140.jpg");
+        photos.put(CATEGORY_NAME_OTHER, "https://images.prom.ua/3085268783_kartki-z-fotoilyustratsiyami.jpg");
+    }
+
+    private void saveOrders(int numberOfOrders) {
         List<User> users = userService.findAllUsers();
-        Random random = new Random();
+
         for (int i = 0; i < numberOfOrders; i++) {
             OrderDto order = new OrderDto();
             LocalDateTime creationDate = getRandomDate(90);
@@ -94,7 +134,6 @@ public class AutoFillingTablesUtil {
     }
 
     private LocalDateTime getRandomDate(int daysFromNow) {
-        Random random = new Random();
         int randomDays = random.nextInt(daysFromNow);
         LocalDateTime currentDate = LocalDateTime.now();
         return currentDate.minusDays(randomDays);
@@ -143,15 +182,15 @@ public class AutoFillingTablesUtil {
 
     public void saveCategory() {
         List<String> categoryNames = new ArrayList<>();
-        categoryNames.add("Столи");
-        categoryNames.add("Стільці");
-        categoryNames.add("Шафи");
-        categoryNames.add("Ліжка");
-        categoryNames.add("Тумбочки");
-        categoryNames.add("Столики");
-        categoryNames.add("Табуретки");
-        categoryNames.add("Дивани");
-        categoryNames.add("Інше");
+        categoryNames.add(CATEGORY_NAME_TABLES);
+        categoryNames.add(CATEGORY_NAMES_CHAIRS);
+        categoryNames.add(CATEGORY_NAME_WARDROBE);
+        categoryNames.add(CATEGORY_NAME_BEDS);
+        categoryNames.add(CATEGORY_NAME_BEDSIDE_TABLES);
+        categoryNames.add(CATEGORY_NAME_COFFEE_TABLES);
+        categoryNames.add(CATEGORY_NAME_STOOLS);
+        categoryNames.add(CATEGORY_NAMES_SOFAS);
+        categoryNames.add(CATEGORY_NAME_OTHER);
         categoryNames.forEach(categoryName -> {
             CategoryDto category = new CategoryDto();
             category.setName(categoryName);
@@ -243,7 +282,7 @@ public class AutoFillingTablesUtil {
         product.setLength(Math.round(Math.random() * 100) / 10.0);
         product.setWidth(Math.round(Math.random() * 100) / 10.0);
         product.setWeight(Math.round(Math.random() * 100) / 10.0);
-        product.setPhotos(Collections.singletonList("https://content1.rozetka.com.ua/goods/images/big/273094280.jpg"));
+        product.setPhotos(Collections.singletonList(getCategoryPhoto(categoryId)));
         product.setPrice(Math.round(Math.random() * 100000) / 100.0);
         product.setQuantity((int) (Math.random() * 100));
         product.setDeleted(false);
@@ -252,10 +291,17 @@ public class AutoFillingTablesUtil {
         return product;
     }
 
+    private String getCategoryPhoto(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .map(category -> {
+                    String categoryName = category.getName();
+                    return photos.get(categoryName);
+                }).orElse("");
+    }
+
     private String generateRandomString(int length) {
         String characters = "АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯабвгґдеєжзиіїйклмнопрстуфхцчшщьюя ";
         StringBuilder stringBuilder = new StringBuilder();
-        Random random = new Random();
         for (int i = 0; i < length; i++) {
             int randomIndex = random.nextInt(characters.length());
             stringBuilder.append(characters.charAt(randomIndex));
@@ -281,7 +327,6 @@ public class AutoFillingTablesUtil {
         deliveryFees.add("За тарифами перевізника");
         deliveryFees.add("Самовивіз");
 
-        Random random = new Random();
         PaymentAndDeliveryDto paymentAndDelivery = PaymentAndDeliveryDto.builder()
                 .paymentType(paymentTypes.get(random.nextInt(paymentTypes.size())))
                 .delivery(deliveryType.get(random.nextInt(deliveryType.size())))
