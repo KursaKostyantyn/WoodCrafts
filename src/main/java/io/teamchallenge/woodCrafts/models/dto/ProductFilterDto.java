@@ -25,7 +25,7 @@ public class ProductFilterDto {
     private Sort.Direction direction = Sort.Direction.ASC;
     private boolean isDeleted = false;
     private boolean inStock = true;
-    private boolean notAvailable = true;
+    private boolean available = true;
     private String name;
 
     @DateTimeFormat(pattern = "dd.MM.yyyy")
